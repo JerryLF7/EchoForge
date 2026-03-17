@@ -1,0 +1,15 @@
+{
+  "id": "work_meeting",
+  "label": "Work meeting minutes",
+  "promptProfile": "work_meeting",
+  "outputPreset": "meeting",
+  "sections": [
+    "summary",
+    "chapters",
+    "decisions",
+    "todos",
+    "quotes",
+    "links"
+  ],
+  "todosEnabled": true
+}

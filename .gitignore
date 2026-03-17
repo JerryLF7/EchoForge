@@ -1,9 +1,5 @@
-__pycache__/
-*.pyc
-.env
-venv/
+node_modules/
 state/
-artifacts/
-downloads/
-secrets/
+coverage/
 .DS_Store
+*.log

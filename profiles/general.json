@@ -1,0 +1,14 @@
+{
+  "id": "general",
+  "label": "General audio intelligence",
+  "promptProfile": "general",
+  "outputPreset": "default",
+  "sections": [
+    "summary",
+    "chapters",
+    "decisions",
+    "quotes",
+    "links"
+  ],
+  "todosEnabled": false
+}

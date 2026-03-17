@@ -1,0 +1,14 @@
+{
+  "id": "lecture",
+  "label": "Lecture or talk",
+  "promptProfile": "lecture",
+  "outputPreset": "knowledge",
+  "sections": [
+    "summary",
+    "chapters",
+    "quotes",
+    "links",
+    "glossary"
+  ],
+  "todosEnabled": false
+}

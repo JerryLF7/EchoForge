@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://echoforge.local/schemas/recording.schema.json",
+  "title": "Recording",
+  "type": "object",
+  "required": [
+    "recordingId",
+    "source",
+    "title",
+    "capturedAt",
+    "audio",
+    "ingest"
+  ],
+  "properties": {
+    "recordingId": {
+      "type": "string"
+    },
+    "source": {
+      "type": "object",
+      "required": ["kind", "itemId"],
+      "properties": {
+        "kind": {
+          "type": "string"
+        },
+        "itemId": {
+          "type": "string"
+        },
+        "workspace": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri"
+        }
+      },
+      "additionalProperties": true
+    },
+    "title": {
+      "type": "string"
+    },
+    "capturedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "participants": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "audio": {
+      "type": "object",
+      "required": ["path", "format"],
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "format": {
+          "type": "string"
+        },
+        "durationSeconds": {
+          "type": "number",
+          "minimum": 0
+        },
+        "checksum": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ingest": {
+      "type": "object",
+      "required": ["status", "ingestedAt"],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["discovered", "downloaded", "normalized"]
+        },
+        "ingestedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "notes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": false
+}
