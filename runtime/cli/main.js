@@ -5,6 +5,10 @@ import { fileURLToPath } from "node:url";
 
 import fs from "node:fs";
 
+import {
+  loadFeishuManifest,
+  normalizeFeishuItem,
+} from "../../adapters/sources/feishu_minutes/adapter.js";
 import { rebuildFromRecording } from "../../pipeline/rebuild.js";
 import { runPipeline } from "../../pipeline/orchestrator.js";
 import { loadProfile } from "./profile-loader.js";
@@ -179,6 +183,24 @@ async function main(argv) {
         recordingId,
         profile,
         output: result.published,
+      }),
+    );
+    return;
+  }
+
+  if (parsed.command === "sync" && parsed.subcommand === "feishu") {
+    const manifest = loadFeishuManifest(repoRoot, {
+      manifest: parsed.options.manifest,
+    });
+
+    console.log(
+      formatJson({
+        source: manifest.source,
+        status: manifest.status,
+        manifestPath: manifest.manifestPath,
+        fetchedAt: manifest.fetchedAt || null,
+        count: manifest.items.length,
+        items: manifest.items.map((item) => normalizeFeishuItem(item)),
       }),
     );
     return;
