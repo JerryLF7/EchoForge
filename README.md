@@ -30,9 +30,22 @@ The first end-to-end source flow is:
 
 - Feishu Minutes audio discovery
 - raw audio download
-- transcript and structure generation
+- multimodal audio understanding with scenario prompts
 - intelligent minutes generation
 - Obsidian publishing
+
+## Audio Understanding
+
+EchoForge treats transcript generation as an agent-native audio understanding step.
+
+That stage should accept:
+- the raw audio file
+- a scenario-specific prompt from the active profile
+- optional terminology hints and context
+
+The result should be a structured transcript artifact that is already biased toward the target scenario instead of a plain raw ASR dump.
+
+Provider adapters for this stage live under `pipeline/providers/`.
 
 ## Repository Layout
 

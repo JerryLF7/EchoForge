@@ -13,6 +13,7 @@ import { importChatAudio } from "../../pipeline/chat-import.js";
 import { rebuildFromRecording } from "../../pipeline/rebuild.js";
 import { runPipeline } from "../../pipeline/orchestrator.js";
 import { recordingFromSourceItem } from "../../pipeline/source-ingest.js";
+import { listAudioProviders } from "../../pipeline/providers/provider-registry.js";
 import { loadProfile } from "./profile-loader.js";
 import {
   commandCatalog,
@@ -85,6 +86,7 @@ async function main(argv) {
         title: parsed.options.title,
       },
       profile,
+      providerOverride: parsed.options.provider,
     });
 
     console.log(
@@ -159,6 +161,15 @@ async function main(argv) {
 
   if (parsed.command === "inspect" && parsed.subcommand === "profile") {
     console.log(formatJson({ profile }));
+    return;
+  }
+
+  if (parsed.command === "inspect" && parsed.subcommand === "providers") {
+    console.log(
+      formatJson({
+        audioUnderstandingProviders: listAudioProviders(),
+      }),
+    );
     return;
   }
 
@@ -279,6 +290,7 @@ function printHelp() {
     "",
     "Global options:",
     "  --profile <name>   Processing profile name",
+    "  --provider <id>    Audio understanding provider override",
     "  --help             Show this help",
   ].join("\n");
 
