@@ -3,6 +3,9 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+import fs from "node:fs";
+
+import { rebuildFromRecording } from "../../pipeline/rebuild.js";
 import { runPipeline } from "../../pipeline/orchestrator.js";
 import { loadProfile } from "./profile-loader.js";
 import {
@@ -12,6 +15,7 @@ import {
   parseCliArgs,
 } from "./parser.js";
 import { assertSchemaFilesExist } from "./schema-check.js";
+import { getRunDir, listRuns, readRunArtifact } from "./state-store.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -58,7 +62,12 @@ async function main(argv) {
 
   assertSchemaFilesExist(repoRoot);
 
-  if (parsed.command === "ingest" && parsed.subcommand === "local") {
+  if (
+    (parsed.command === "ingest" || parsed.command === "process") &&
+    parsed.subcommand === "local"
+  ) {
+    requireOption(parsed.options, "file");
+
     const result = await runPipeline({
       repoRoot,
       input: {
@@ -74,6 +83,101 @@ async function main(argv) {
         subcommand: parsed.subcommand,
         profile,
         recordingId: result.recording.recordingId,
+        output: result.published,
+      }),
+    );
+    return;
+  }
+
+  if (parsed.command === "inspect" && parsed.subcommand === "runs") {
+    const runs = listRuns(repoRoot).map((recordingId) => {
+      const runDir = getRunDir(repoRoot, recordingId);
+      const recordingPath = path.join(runDir, "recording.json");
+      const minutesPath = path.join(runDir, "minutes.json");
+      const base = {
+        recordingId,
+        runDir,
+      };
+
+      if (!fs.existsSync(recordingPath) || !fs.existsSync(minutesPath)) {
+        return base;
+      }
+
+      const recording = JSON.parse(fs.readFileSync(recordingPath, "utf8"));
+      const minutes = JSON.parse(fs.readFileSync(minutesPath, "utf8"));
+
+      return {
+        ...base,
+        title: recording.title,
+        source: recording.source.kind,
+        profile: minutes.profile,
+        capturedAt: recording.capturedAt,
+      };
+    });
+
+    console.log(formatJson({ runs }));
+    return;
+  }
+
+  if (parsed.command === "inspect" && parsed.subcommand === "recording") {
+    const recordingId = parsed.positionals[0] || parsed.options.id;
+    if (!recordingId) {
+      fail("Missing recording id. Use: inspect recording <recordingId>");
+    }
+
+    console.log(
+      formatJson({
+        recording: readRunArtifact(repoRoot, recordingId, "recording.json"),
+        transcript: readRunArtifact(repoRoot, recordingId, "transcript.json"),
+        chapters: readRunArtifact(repoRoot, recordingId, "chapters.json"),
+        minutes: readRunArtifact(repoRoot, recordingId, "minutes.json"),
+      }),
+    );
+    return;
+  }
+
+  if (parsed.command === "inspect" && parsed.subcommand === "profile") {
+    console.log(formatJson({ profile }));
+    return;
+  }
+
+  if (parsed.command === "inspect" && parsed.subcommand === "schema") {
+    const schemaName = parsed.positionals[0] || parsed.options.name;
+    if (!schemaName) {
+      fail("Missing schema name. Use: inspect schema <name>");
+    }
+
+    const schemaPath = path.join(repoRoot, "schemas", `${schemaName}.schema.json`);
+    if (!fs.existsSync(schemaPath)) {
+      fail(`Schema not found: ${schemaName}`);
+    }
+
+    console.log(fs.readFileSync(schemaPath, "utf8"));
+    return;
+  }
+
+  if (
+    (parsed.command === "process" || parsed.command === "rebuild") &&
+    parsed.subcommand === "recording"
+  ) {
+    const recordingId = parsed.positionals[0] || parsed.options.id;
+    if (!recordingId) {
+      fail("Missing recording id. Use: process recording <recordingId>");
+    }
+
+    const result = await rebuildFromRecording({
+      repoRoot,
+      recording: readRunArtifact(repoRoot, recordingId, "recording.json"),
+      transcript: readRunArtifact(repoRoot, recordingId, "transcript.json"),
+      profile,
+    });
+
+    console.log(
+      formatJson({
+        command: parsed.command,
+        subcommand: parsed.subcommand,
+        recordingId,
+        profile,
         output: result.published,
       }),
     );
@@ -116,6 +220,12 @@ function printHelp() {
   ].join("\n");
 
   console.log(help);
+}
+
+function requireOption(options, key) {
+  if (!options[key]) {
+    fail(`Missing required option: --${key}`);
+  }
 }
 
 function fail(message) {

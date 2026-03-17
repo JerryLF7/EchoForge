@@ -8,16 +8,16 @@ export const commandCatalog = {
     subcommands: ["feishu", "source"],
   },
   process: {
-    description: "Run the pipeline for an existing recording.",
-    subcommands: ["recording", "batch"],
+    description: "Run the pipeline for an existing recording or new input.",
+    subcommands: ["local", "recording", "batch"],
   },
   rebuild: {
     description: "Re-generate downstream artifacts from prior state.",
-    subcommands: ["minutes", "publish"],
+    subcommands: ["recording", "minutes", "publish"],
   },
   inspect: {
     description: "Inspect stored state, schemas, and profiles.",
-    subcommands: ["recording", "schema", "profile"],
+    subcommands: ["runs", "recording", "schema", "profile"],
   },
   plan: {
     description: "Print the resolved execution plan without running it.",
