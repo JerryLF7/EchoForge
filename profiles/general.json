@@ -3,7 +3,15 @@
   "label": "General audio intelligence",
   "promptProfile": "general",
   "outputPreset": "default",
+  "language": "auto",
   "audioUnderstanding": {
+    "provider": "stub",
+    "model": "unconfigured",
+    "capabilities": {
+      "speakerInference": true,
+      "timestampAlignment": true,
+      "terminologyCorrection": true
+    },
     "prompt": "Transcribe and lightly normalize the audio into a clean, readable conversation transcript. Preserve meaning, infer speaker turns when possible, and correct obvious recognition errors without inventing facts.",
     "terminologyHints": []
   },

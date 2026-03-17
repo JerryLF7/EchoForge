@@ -55,11 +55,18 @@ async function main(argv) {
         options: parsed.options,
         positionals: parsed.positionals,
         profile,
+        audioUnderstanding: {
+          provider: parsed.options.provider || profile.audioUnderstanding.provider,
+          model: profile.audioUnderstanding.model,
+          capabilities: profile.audioUnderstanding.capabilities,
+          prompt: profile.audioUnderstanding.prompt,
+        },
         next: [
           "resolve source input",
           "build normalized recording record",
-          "run pipeline stages",
-          "emit structured artifacts",
+          "run multimodal audio understanding",
+          "generate structured minutes artifacts",
+          "emit published outputs",
         ],
       }),
     );
@@ -165,9 +172,14 @@ async function main(argv) {
   }
 
   if (parsed.command === "inspect" && parsed.subcommand === "providers") {
+    const activeProvider = parsed.options.provider || profile.audioUnderstanding.provider;
+
     console.log(
       formatJson({
+        activeProvider,
+        configuredModel: profile.audioUnderstanding.model,
         audioUnderstandingProviders: listAudioProviders(),
+        capabilities: profile.audioUnderstanding.capabilities,
       }),
     );
     return;

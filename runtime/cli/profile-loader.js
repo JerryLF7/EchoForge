@@ -6,6 +6,18 @@ const defaultProfile = {
   label: "General audio intelligence",
   promptProfile: "general",
   outputPreset: "default",
+  language: "auto",
+  audioUnderstanding: {
+    provider: "stub",
+    model: "unconfigured",
+    capabilities: {
+      speakerInference: true,
+      timestampAlignment: true,
+      terminologyCorrection: true,
+    },
+    prompt: "Understand the audio.",
+    terminologyHints: [],
+  },
   sections: ["summary", "chapters", "decisions", "quotes", "links"],
   todosEnabled: false,
 };

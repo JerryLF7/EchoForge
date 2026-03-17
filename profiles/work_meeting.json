@@ -3,7 +3,16 @@
   "label": "Work meeting minutes",
   "promptProfile": "work_meeting",
   "outputPreset": "meeting",
+  "language": "auto",
   "audioUnderstanding": {
+    "provider": "stub",
+    "model": "unconfigured",
+    "capabilities": {
+      "speakerInference": true,
+      "timestampAlignment": true,
+      "terminologyCorrection": true,
+      "decisionExtractionBias": true
+    },
     "prompt": "Transcribe the meeting audio into a scenario-aware transcript. Preserve speaker turns, normalize company or project terminology when the context is clear, and prefer action-relevant phrasing over filler speech.",
     "terminologyHints": [
       "project names",

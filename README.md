@@ -47,6 +47,8 @@ The result should be a structured transcript artifact that is already biased tow
 
 Provider adapters for this stage live under `pipeline/providers/`.
 
+Profiles explicitly declare the target provider, model, prompt, and capability expectations for this stage.
+
 ## Repository Layout
 
 ```text

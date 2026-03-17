@@ -3,7 +3,16 @@
   "label": "Lecture or talk",
   "promptProfile": "lecture",
   "outputPreset": "knowledge",
+  "language": "auto",
   "audioUnderstanding": {
+    "provider": "stub",
+    "model": "unconfigured",
+    "capabilities": {
+      "speakerInference": true,
+      "timestampAlignment": true,
+      "terminologyCorrection": true,
+      "conceptNormalization": true
+    },
     "prompt": "Transcribe the talk into a knowledge-friendly transcript. Preserve technical terms, clarify topic shifts, and rewrite obvious misrecognitions when the intended concept is strongly implied by context.",
     "terminologyHints": [
       "technical terms",
