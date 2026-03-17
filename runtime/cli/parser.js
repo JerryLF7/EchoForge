@@ -1,7 +1,7 @@
 export const commandCatalog = {
   ingest: {
     description: "Normalize a new audio input into a recording record.",
-    subcommands: ["local", "source"],
+    subcommands: ["local", "chat", "source"],
   },
   sync: {
     description: "Pull new items from a source adapter.",
@@ -17,7 +17,7 @@ export const commandCatalog = {
   },
   inspect: {
     description: "Inspect stored state, schemas, and profiles.",
-    subcommands: ["runs", "recording", "schema", "profile"],
+    subcommands: ["runs", "recordings", "recording", "schema", "profile"],
   },
   plan: {
     description: "Print the resolved execution plan without running it.",

@@ -9,6 +9,7 @@ import {
   loadFeishuManifest,
   normalizeFeishuItem,
 } from "../../adapters/sources/feishu_minutes/adapter.js";
+import { importChatAudio } from "../../pipeline/chat-import.js";
 import { rebuildFromRecording } from "../../pipeline/rebuild.js";
 import { runPipeline } from "../../pipeline/orchestrator.js";
 import { recordingFromSourceItem } from "../../pipeline/source-ingest.js";
@@ -20,6 +21,10 @@ import {
   parseCliArgs,
 } from "./parser.js";
 import { assertSchemaFilesExist } from "./schema-check.js";
+import {
+  loadRecordingIndex,
+  upsertRecordings,
+} from "./recording-store.js";
 import { getRunDir, listRuns, readRunArtifact } from "./state-store.js";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -124,6 +129,17 @@ async function main(argv) {
     return;
   }
 
+  if (parsed.command === "inspect" && parsed.subcommand === "recordings") {
+    const index = loadRecordingIndex(repoRoot);
+    console.log(
+      formatJson({
+        count: Object.keys(index.items).length,
+        recordings: Object.values(index.items),
+      }),
+    );
+    return;
+  }
+
   if (parsed.command === "inspect" && parsed.subcommand === "recording") {
     const recordingId = parsed.positionals[0] || parsed.options.id;
     if (!recordingId) {
@@ -194,6 +210,8 @@ async function main(argv) {
       manifest: parsed.options.manifest,
     });
     const normalizedItems = manifest.items.map((item) => normalizeFeishuItem(item));
+    const recordings = normalizedItems.map((item) => recordingFromSourceItem(item));
+    const persisted = upsertRecordings(repoRoot, recordings);
 
     console.log(
       formatJson({
@@ -202,8 +220,28 @@ async function main(argv) {
         manifestPath: manifest.manifestPath,
         fetchedAt: manifest.fetchedAt || null,
         count: normalizedItems.length,
+        persisted: persisted.count,
         items: normalizedItems,
-        recordings: normalizedItems.map((item) => recordingFromSourceItem(item)),
+        recordings,
+      }),
+    );
+    return;
+  }
+
+  if (parsed.command === "ingest" && parsed.subcommand === "chat") {
+    requireOption(parsed.options, "file");
+
+    const recording = importChatAudio({
+      filePath: parsed.options.file,
+      title: parsed.options.title,
+    });
+    upsertRecordings(repoRoot, [recording]);
+
+    console.log(
+      formatJson({
+        command: parsed.command,
+        subcommand: parsed.subcommand,
+        recording,
       }),
     );
     return;
