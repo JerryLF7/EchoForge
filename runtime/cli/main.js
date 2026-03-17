@@ -11,6 +11,7 @@ import {
 } from "../../adapters/sources/feishu_minutes/adapter.js";
 import { rebuildFromRecording } from "../../pipeline/rebuild.js";
 import { runPipeline } from "../../pipeline/orchestrator.js";
+import { recordingFromSourceItem } from "../../pipeline/source-ingest.js";
 import { loadProfile } from "./profile-loader.js";
 import {
   commandCatalog,
@@ -192,6 +193,7 @@ async function main(argv) {
     const manifest = loadFeishuManifest(repoRoot, {
       manifest: parsed.options.manifest,
     });
+    const normalizedItems = manifest.items.map((item) => normalizeFeishuItem(item));
 
     console.log(
       formatJson({
@@ -199,8 +201,9 @@ async function main(argv) {
         status: manifest.status,
         manifestPath: manifest.manifestPath,
         fetchedAt: manifest.fetchedAt || null,
-        count: manifest.items.length,
-        items: manifest.items.map((item) => normalizeFeishuItem(item)),
+        count: normalizedItems.length,
+        items: normalizedItems,
+        recordings: normalizedItems.map((item) => recordingFromSourceItem(item)),
       }),
     );
     return;

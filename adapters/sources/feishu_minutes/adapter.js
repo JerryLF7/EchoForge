@@ -36,6 +36,11 @@ export function normalizeFeishuItem(item) {
     title: item.title || item.objectToken,
     capturedAt: item.recordedAt || item.createdAt || new Date().toISOString(),
     participants: item.participants || [],
+    audio: {
+      path: item.audioPath || null,
+      format: item.audioFormat || null,
+      checksum: item.audioChecksum || null,
+    },
     metadata: {
       durationSeconds: item.durationSeconds || null,
       speakerCount: item.speakerCount || null,
