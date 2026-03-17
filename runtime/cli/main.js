@@ -26,6 +26,7 @@ import {
   loadRecordingIndex,
   upsertRecordings,
 } from "./recording-store.js";
+import { loadRunsIndex } from "./run-store.js";
 import { getRunDir, listRuns, readRunArtifact } from "./state-store.js";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -109,32 +110,31 @@ async function main(argv) {
   }
 
   if (parsed.command === "inspect" && parsed.subcommand === "runs") {
-    const runs = listRuns(repoRoot).map((recordingId) => {
-      const runDir = getRunDir(repoRoot, recordingId);
-      const recordingPath = path.join(runDir, "recording.json");
-      const minutesPath = path.join(runDir, "minutes.json");
-      const base = {
-        recordingId,
-        runDir,
-      };
+    const index = loadRunsIndex(repoRoot);
+    console.log(
+      formatJson({
+        count: Object.keys(index.items).length,
+        runs: Object.values(index.items),
+      }),
+    );
+    return;
+  }
 
-      if (!fs.existsSync(recordingPath) || !fs.existsSync(minutesPath)) {
-        return base;
-      }
+  if (parsed.command === "inspect" && parsed.subcommand === "run") {
+    const runId = parsed.positionals[0] || parsed.options.id;
+    if (!runId) {
+      fail("Missing run id. Use: inspect run <runId>");
+    }
 
-      const recording = JSON.parse(fs.readFileSync(recordingPath, "utf8"));
-      const minutes = JSON.parse(fs.readFileSync(minutesPath, "utf8"));
-
-      return {
-        ...base,
-        title: recording.title,
-        source: recording.source.kind,
-        profile: minutes.profile,
-        capturedAt: recording.capturedAt,
-      };
-    });
-
-    console.log(formatJson({ runs }));
+    console.log(
+      formatJson({
+        run: readRunArtifact(repoRoot, runId, "run.json"),
+        recording: readRunArtifact(repoRoot, runId, "recording.json"),
+        transcript: readRunArtifact(repoRoot, runId, "transcript.json"),
+        chapters: readRunArtifact(repoRoot, runId, "chapters.json"),
+        minutes: readRunArtifact(repoRoot, runId, "minutes.json"),
+      }),
+    );
     return;
   }
 
@@ -150,17 +150,17 @@ async function main(argv) {
   }
 
   if (parsed.command === "inspect" && parsed.subcommand === "recording") {
-    const recordingId = parsed.positionals[0] || parsed.options.id;
-    if (!recordingId) {
-      fail("Missing recording id. Use: inspect recording <recordingId>");
+    const runId = parsed.positionals[0] || parsed.options.id;
+    if (!runId) {
+      fail("Missing run id. Use: inspect recording <runId>");
     }
 
     console.log(
       formatJson({
-        recording: readRunArtifact(repoRoot, recordingId, "recording.json"),
-        transcript: readRunArtifact(repoRoot, recordingId, "transcript.json"),
-        chapters: readRunArtifact(repoRoot, recordingId, "chapters.json"),
-        minutes: readRunArtifact(repoRoot, recordingId, "minutes.json"),
+        recording: readRunArtifact(repoRoot, runId, "recording.json"),
+        transcript: readRunArtifact(repoRoot, runId, "transcript.json"),
+        chapters: readRunArtifact(repoRoot, runId, "chapters.json"),
+        minutes: readRunArtifact(repoRoot, runId, "minutes.json"),
       }),
     );
     return;

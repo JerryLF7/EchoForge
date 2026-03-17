@@ -17,7 +17,7 @@ export const commandCatalog = {
   },
   inspect: {
     description: "Inspect stored state, schemas, and profiles.",
-    subcommands: ["runs", "recordings", "recording", "schema", "profile", "providers"],
+    subcommands: ["runs", "run", "recordings", "recording", "schema", "profile", "providers"],
   },
   plan: {
     description: "Print the resolved execution plan without running it.",

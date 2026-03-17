@@ -1,8 +1,12 @@
 import fs from "node:fs";
 import path from "node:path";
 
+import { upsertRunManifest } from "../../runtime/cli/run-store.js";
+
 export async function publishArtifacts({ repoRoot, recording, transcript, chapters, minutes }) {
-  const runDir = path.join(repoRoot, "state", "runs", recording.recordingId);
+  const startedAt = new Date().toISOString();
+  const runId = `run_${recording.recordingId}`;
+  const runDir = path.join(repoRoot, "state", "runs", runId);
   fs.mkdirSync(runDir, { recursive: true });
 
   const artifacts = {
@@ -11,6 +15,7 @@ export async function publishArtifacts({ repoRoot, recording, transcript, chapte
     chapters: path.join(runDir, "chapters.json"),
     minutes: path.join(runDir, "minutes.json"),
     markdown: path.join(runDir, "minutes.md"),
+    run: path.join(runDir, "run.json")
   };
 
   fs.writeFileSync(artifacts.recording, `${JSON.stringify(recording, null, 2)}\n`);
@@ -19,9 +24,34 @@ export async function publishArtifacts({ repoRoot, recording, transcript, chapte
   fs.writeFileSync(artifacts.minutes, `${JSON.stringify(minutes, null, 2)}\n`);
   fs.writeFileSync(artifacts.markdown, renderMinutesMarkdown({ recording, minutes }));
 
+  const runManifest = {
+    runId,
+    recordingId: recording.recordingId,
+    profile: minutes.profile,
+    provider: {
+      id: transcript.provider.name,
+      model: transcript.provider.model,
+    },
+    startedAt,
+    completedAt: new Date().toISOString(),
+    status: "completed",
+    artifacts: {
+      recording: artifacts.recording,
+      transcript: artifacts.transcript,
+      chapters: artifacts.chapters,
+      minutes: artifacts.minutes,
+      markdown: artifacts.markdown,
+    },
+  };
+
+  fs.writeFileSync(artifacts.run, `${JSON.stringify(runManifest, null, 2)}\n`);
+  upsertRunManifest(repoRoot, runManifest);
+
   return {
+    runId,
     runDir,
     artifacts,
+    manifest: runManifest,
   };
 }
 

@@ -5,12 +5,12 @@ export function getRunsRoot(repoRoot) {
   return path.join(repoRoot, "state", "runs");
 }
 
-export function getRunDir(repoRoot, recordingId) {
-  return path.join(getRunsRoot(repoRoot), recordingId);
+export function getRunDir(repoRoot, runId) {
+  return path.join(getRunsRoot(repoRoot), runId);
 }
 
-export function readRunArtifact(repoRoot, recordingId, artifactName) {
-  const fullPath = path.join(getRunDir(repoRoot, recordingId), artifactName);
+export function readRunArtifact(repoRoot, runId, artifactName) {
+  const fullPath = path.join(getRunDir(repoRoot, runId), artifactName);
   if (!fs.existsSync(fullPath)) {
     throw new Error(`Artifact not found: ${fullPath}`);
   }
