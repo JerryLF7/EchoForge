@@ -3,6 +3,15 @@
   "label": "Lecture or talk",
   "promptProfile": "lecture",
   "outputPreset": "knowledge",
+  "audioUnderstanding": {
+    "prompt": "Transcribe the talk into a knowledge-friendly transcript. Preserve technical terms, clarify topic shifts, and rewrite obvious misrecognitions when the intended concept is strongly implied by context.",
+    "terminologyHints": [
+      "technical terms",
+      "named concepts",
+      "book or paper titles",
+      "quoted phrases"
+    ]
+  },
   "sections": [
     "summary",
     "chapters",
