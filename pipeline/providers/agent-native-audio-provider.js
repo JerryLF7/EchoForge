@@ -1,5 +1,14 @@
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+import { assertValidAgainstSchema } from "../../runtime/schema/validator.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const repoRoot = path.resolve(__dirname, "..", "..");
+
 export function buildAgentAudioUnderstandingTask({ recording, profile, request }) {
-  return {
+  const task = {
     taskSchema: "agent-audio-task.schema.json",
     taskKind: "audio_understanding",
     taskVersion: "2026-03-17",
@@ -56,6 +65,15 @@ export function buildAgentAudioUnderstandingTask({ recording, profile, request }
       ],
     },
   };
+
+  assertValidAgainstSchema(
+    repoRoot,
+    "agent-audio-task.schema.json",
+    task,
+    `audio understanding task for ${recording.recordingId}`,
+  );
+
+  return task;
 }
 
 export async function runAgentNativeAudioProvider(context) {
@@ -95,13 +113,20 @@ export function normalizeAgentAudioUnderstandingResult({
     throw new Error("Agent audio understanding result must be a JSON object.");
   }
 
+  assertValidAgainstSchema(
+    repoRoot,
+    "agent-audio-result.schema.json",
+    result,
+    `audio understanding result for ${recording.recordingId}`,
+  );
+
   const transcriptUtterances = Array.isArray(result.transcriptUtterances)
     ? result.transcriptUtterances
     : [];
   const utterances = normalizeUtterances(transcriptUtterances);
   const agent = normalizeAgentMetadata(result.agent);
 
-  return {
+  const normalized = {
     transcript: {
       recordingId: recording.recordingId,
       contentRole: "machine_transcript",
@@ -130,6 +155,15 @@ export function normalizeAgentAudioUnderstandingResult({
       utterances,
     ),
   };
+
+  assertValidAgainstSchema(
+    repoRoot,
+    "transcript.schema.json",
+    normalized.transcript,
+    `transcript ${recording.recordingId}`,
+  );
+
+  return normalized;
 }
 
 function normalizeAgentMetadata(agent) {

@@ -1,5 +1,6 @@
 import fs from "node:fs";
 
+import { assertValidAgainstSchema } from "../../runtime/schema/validator.js";
 import {
   getRunArtifactPath,
   getRunDir,
@@ -25,6 +26,10 @@ export async function publishArtifacts({
   fs.mkdirSync(runDir, { recursive: true });
 
   const persistedMinutes = withSourceArtifacts({ minutes, runId });
+  assertValidAgainstSchema(repoRoot, "recording.schema.json", recording, `recording ${recording.recordingId}`);
+  assertValidAgainstSchema(repoRoot, "transcript.schema.json", transcript, `transcript ${recording.recordingId}`);
+  assertValidAgainstSchema(repoRoot, "chapters.schema.json", chapters, `chapters ${recording.recordingId}`);
+  assertValidAgainstSchema(repoRoot, "minutes.schema.json", persistedMinutes, `minutes ${recording.recordingId}`);
   const artifacts = {
     recording: getRunArtifactPath(repoRoot, runId, "recording.json"),
     transcript: getRunArtifactPath(repoRoot, runId, "transcript.json"),
@@ -70,6 +75,7 @@ export async function publishArtifacts({
     },
   };
 
+  assertValidAgainstSchema(repoRoot, "run.schema.json", runManifest, `run manifest ${runId}`);
   fs.writeFileSync(artifacts.run, `${JSON.stringify(runManifest, null, 2)}\n`);
   upsertRunManifest(repoRoot, runManifest);
 

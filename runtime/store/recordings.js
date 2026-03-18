@@ -1,6 +1,8 @@
 import fs from "node:fs";
 import path from "node:path";
 
+import { assertValidAgainstSchema } from "../schema/validator.js";
+
 export function getRecordingIndexPath(repoRoot) {
   return path.join(repoRoot, "state", "recordings.json");
 }
@@ -31,6 +33,12 @@ export function upsertRecordings(repoRoot, recordings) {
   const index = loadRecordingIndex(repoRoot);
 
   for (const recording of recordings) {
+    assertValidAgainstSchema(
+      repoRoot,
+      "recording.schema.json",
+      recording,
+      `recording ${recording.recordingId || "(unknown)"}`,
+    );
     index.items[recording.recordingId] = recording;
   }
 

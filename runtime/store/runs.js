@@ -2,6 +2,8 @@ import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 
+import { assertValidAgainstSchema } from "../schema/validator.js";
+
 export function getRunsIndexPath(repoRoot) {
   return path.join(repoRoot, "state", "runs.json");
 }
@@ -47,6 +49,12 @@ export function findLatestRunForRecording(repoRoot, recordingId) {
 }
 
 export function upsertRunManifest(repoRoot, manifest) {
+  assertValidAgainstSchema(
+    repoRoot,
+    "run.schema.json",
+    manifest,
+    `run manifest ${manifest.runId || "(unknown)"}`,
+  );
   const index = loadRunsIndex(repoRoot);
   index.items[manifest.runId] = manifest;
   saveRunsIndex(repoRoot, index);

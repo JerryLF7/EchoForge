@@ -1,6 +1,8 @@
 import fs from "node:fs";
 import path from "node:path";
 
+import { assertValidAgainstSchema } from "../schema/validator.js";
+
 const defaultProfile = {
   id: "general",
   label: "General audio intelligence",
@@ -24,16 +26,19 @@ export function loadProfile(repoRoot, profileName) {
   const profilePath = path.join(repoRoot, "profiles", `${profileName}.json`);
 
   if (!fs.existsSync(profilePath)) {
-    return {
+    const profile = {
       ...defaultProfile,
       id: profileName,
-      inheritedFrom: "builtin-default",
       audioUnderstanding: {
         ...defaultProfile.audioUnderstanding,
       },
     };
+    assertValidAgainstSchema(repoRoot, "profile.schema.json", profile, `profile ${profileName}`);
+    return profile;
   }
 
   const raw = fs.readFileSync(profilePath, "utf8");
-  return JSON.parse(raw);
+  const profile = JSON.parse(raw);
+  assertValidAgainstSchema(repoRoot, "profile.schema.json", profile, `profile ${profileName}`);
+  return profile;
 }
