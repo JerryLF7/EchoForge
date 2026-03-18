@@ -5,24 +5,20 @@ import { fileURLToPath } from "node:url";
 
 import fs from "node:fs";
 
-import {
-  loadFeishuManifest,
-  normalizeFeishuItem,
-} from "../../adapters/sources/feishu_minutes/adapter.js";
 import { importChatAudio } from "../../pipeline/chat-import.js";
 import { ingestLocalFile } from "../../pipeline/stages/ingest.js";
-import { rebuildRun } from "../../pipeline/rebuild.js";
 import {
   runPipeline,
   runPipelineFromRecording,
 } from "../../pipeline/orchestrator.js";
-import { recordingFromSourceItem } from "../../pipeline/source-ingest.js";
 import {
   getAudioRuntime,
   listAudioProviders,
   resolveAudioProviderSelection,
 } from "../../pipeline/providers/provider-registry.js";
+import { processBatchCommand } from "./batch-commands.js";
 import { loadProfile } from "./profile-loader.js";
+import { rebuildMinutesCommand, republishRunCommand } from "./rebuild-commands.js";
 import {
   commandCatalog,
   formatCommandList,
@@ -30,9 +26,11 @@ import {
   parseCliArgs,
 } from "./parser.js";
 import { assertSchemaFilesExist } from "./schema-check.js";
+import { ingestSourceCommand, syncSourceCommand } from "./source-commands.js";
+import { validateStoredState } from "./state-validation.js";
 import {
   getRecording,
-  loadRecordingIndex,
+  listRecordings,
   upsertRecordings,
 } from "../store/recordings.js";
 import {
@@ -148,6 +146,26 @@ async function main(argv) {
     return;
   }
 
+  if (parsed.command === "process" && parsed.subcommand === "batch") {
+    const result = await processBatchCommand({
+      repoRoot,
+      batch: parsed.options.batch || parsed.positionals[0],
+      defaultProfile: profile,
+    });
+
+    console.log(
+      formatJson({
+        command: parsed.command,
+        subcommand: parsed.subcommand,
+        profile,
+        batchPath: result.batchPath,
+        count: result.count,
+        results: result.results,
+      }),
+    );
+    return;
+  }
+
   if (parsed.command === "inspect" && parsed.subcommand === "runs") {
     const runs = listRunManifests(repoRoot);
     console.log(
@@ -178,11 +196,11 @@ async function main(argv) {
   }
 
   if (parsed.command === "inspect" && parsed.subcommand === "recordings") {
-    const index = loadRecordingIndex(repoRoot);
+    const recordings = listRecordings(repoRoot);
     console.log(
       formatJson({
-        count: Object.keys(index.items).length,
-        recordings: Object.values(index.items),
+        count: recordings.length,
+        recordings,
       }),
     );
     return;
@@ -244,6 +262,18 @@ async function main(argv) {
     return;
   }
 
+  if (parsed.command === "inspect" && parsed.subcommand === "validate") {
+    const runId = parsed.positionals[0] || parsed.options.id || null;
+    const report = validateStoredState(repoRoot, { runId });
+    console.log(
+      formatJson({
+        scope: runId ? { runId } : "all",
+        ...report,
+      }),
+    );
+    process.exit(report.ok ? 0 : 1);
+  }
+
   if (parsed.command === "process" && parsed.subcommand === "recording") {
     const recordingId = parsed.positionals[0] || parsed.options.id;
     if (!recordingId) {
@@ -286,16 +316,10 @@ async function main(argv) {
       fail("Missing run id. Use: rebuild run <runId>");
     }
 
-    const manifest = getRunManifest(repoRoot, runId) || readRunArtifact(repoRoot, runId, "run.json");
-    const recording = readRunArtifact(repoRoot, runId, "recording.json");
-    const transcript = readRunArtifact(repoRoot, runId, "transcript.json");
-    const result = await rebuildRun({
+    const result = await rebuildMinutesCommand({
       repoRoot,
       runId,
-      recording,
-      transcript,
       profile,
-      startedAt: manifest.startedAt,
     });
 
     console.log(
@@ -311,24 +335,93 @@ async function main(argv) {
     return;
   }
 
-  if (parsed.command === "sync" && parsed.subcommand === "feishu") {
-    const manifest = loadFeishuManifest(repoRoot, {
-      manifest: parsed.options.manifest,
+  if (parsed.command === "rebuild" && parsed.subcommand === "minutes") {
+    const runId = parsed.positionals[0] || parsed.options.id;
+    if (!runId) {
+      fail("Missing run id. Use: rebuild minutes <runId>");
+    }
+
+    const result = await rebuildMinutesCommand({
+      repoRoot,
+      runId,
+      profile,
     });
-    const normalizedItems = manifest.items.map((item) => normalizeFeishuItem(item));
-    const recordings = normalizedItems.map((item) => recordingFromSourceItem(item));
-    const persisted = upsertRecordings(repoRoot, recordings);
 
     console.log(
       formatJson({
-        source: manifest.source,
-        status: manifest.status,
-        manifestPath: manifest.manifestPath,
-        fetchedAt: manifest.fetchedAt || null,
-        count: normalizedItems.length,
-        persisted: persisted.count,
-        items: normalizedItems,
-        recordings,
+        command: parsed.command,
+        subcommand: parsed.subcommand,
+        runId,
+        recordingId: result.recording.recordingId,
+        profile,
+        output: result.published,
+      }),
+    );
+    return;
+  }
+
+  if (parsed.command === "rebuild" && parsed.subcommand === "publish") {
+    const runId = parsed.positionals[0] || parsed.options.id;
+    if (!runId) {
+      fail("Missing run id. Use: rebuild publish <runId>");
+    }
+
+    const result = await republishRunCommand({
+      repoRoot,
+      runId,
+    });
+
+    console.log(
+      formatJson({
+        command: parsed.command,
+        subcommand: parsed.subcommand,
+        runId,
+        recordingId: result.recording.recordingId,
+        output: result.published,
+      }),
+    );
+    return;
+  }
+
+  if (parsed.command === "sync" && parsed.subcommand === "feishu") {
+    const result = syncSourceCommand({
+      repoRoot,
+      sourceKind: "feishu_minutes",
+      manifest: parsed.options.manifest,
+    });
+
+    console.log(
+      formatJson({
+        source: result.source,
+        status: result.status,
+        manifestPath: result.manifestPath,
+        fetchedAt: result.fetchedAt,
+        count: result.count,
+        persisted: result.persisted,
+        items: result.items,
+        recordings: result.recordings,
+      }),
+    );
+    return;
+  }
+
+  if (parsed.command === "sync" && parsed.subcommand === "source") {
+    const result = syncSourceCommand({
+      repoRoot,
+      sourceKind: parsed.options.kind || parsed.options.source || "feishu_minutes",
+      manifest: parsed.options.manifest,
+    });
+
+    console.log(
+      formatJson({
+        source: result.source,
+        status: result.status,
+        manifestPath: result.manifestPath,
+        fetchedAt: result.fetchedAt,
+        count: result.count,
+        persisted: result.persisted,
+        items: result.items,
+        recordings: result.recordings,
       }),
     );
     return;
@@ -353,18 +446,33 @@ async function main(argv) {
     return;
   }
 
-  console.log(
-    formatJson({
-      command: parsed.command,
-      subcommand: parsed.subcommand || null,
-      options: parsed.options,
-      positionals: parsed.positionals,
-      status: "stub",
-      description: command.description,
-      profile,
+  if (parsed.command === "ingest" && parsed.subcommand === "source") {
+    const result = ingestSourceCommand({
       repoRoot,
-    }),
-  );
+      sourceKind: parsed.options.kind || parsed.options.source || "feishu_minutes",
+      manifest: parsed.options.manifest,
+      itemId: parsed.options.item || parsed.positionals[0] || null,
+      ingestAll: Boolean(parsed.options.all),
+    });
+
+    console.log(
+      formatJson({
+        command: parsed.command,
+        subcommand: parsed.subcommand,
+        source: result.source,
+        status: result.status,
+        manifestPath: result.manifestPath,
+        fetchedAt: result.fetchedAt,
+        selectedCount: result.selectedCount,
+        persisted: result.persisted,
+        items: result.items,
+        recordings: result.recordings,
+      }),
+    );
+    return;
+  }
+
+  fail(`Unknown command combination: ${parsed.command}${parsed.subcommand ? ` ${parsed.subcommand}` : ""}`);
 }
 
 function resolveProfileName(parsed) {
@@ -372,12 +480,19 @@ function resolveProfileName(parsed) {
     return parsed.options.profile;
   }
 
-  if (parsed.command === "rebuild" && parsed.subcommand === "run") {
+  if (
+    parsed.command === "rebuild" &&
+    (parsed.subcommand === "run" || parsed.subcommand === "minutes")
+  ) {
     const runId = parsed.positionals[0] || parsed.options.id;
     if (runId) {
-      const manifest = getRunManifest(repoRoot, runId);
-      if (manifest?.profile) {
-        return manifest.profile;
+      try {
+        const manifest = getRunManifest(repoRoot, runId);
+        if (manifest?.profile) {
+          return manifest.profile;
+        }
+      } catch {
+        return "general";
       }
     }
   }
@@ -397,10 +512,15 @@ function printHelp() {
     "",
     "Examples:",
     "  echoforge ingest local --file ./demo.wav --profile general",
+    "  echoforge ingest source --kind feishu_minutes --item <itemId> --manifest ./manifest.json",
     "  echoforge process local --file ./demo.wav --audio-result ./understanding.json --profile general",
+    "  echoforge process batch --batch ./batch.json --profile general",
     "  echoforge sync feishu --profile work_meeting",
+    "  echoforge sync source --kind feishu_minutes --manifest ./manifest.json",
     "  echoforge process recording rec_001 --audio-result ./understanding.json --profile lecture",
     "  echoforge rebuild run run_rec_001_abcd --profile lecture",
+    "  echoforge rebuild publish run_rec_001_abcd",
+    "  echoforge inspect validate [runId]",
     "  echoforge plan --profile general",
     "",
     "Global options:",

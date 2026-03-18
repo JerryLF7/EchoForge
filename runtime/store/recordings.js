@@ -15,7 +15,9 @@ export function loadRecordingIndex(repoRoot) {
     };
   }
 
-  return JSON.parse(fs.readFileSync(indexPath, "utf8"));
+  const index = JSON.parse(fs.readFileSync(indexPath, "utf8"));
+  assertRecordingIndexShape(index, indexPath);
+  return index;
 }
 
 export function saveRecordingIndex(repoRoot, index) {
@@ -26,7 +28,18 @@ export function saveRecordingIndex(repoRoot, index) {
 
 export function getRecording(repoRoot, recordingId) {
   const index = loadRecordingIndex(repoRoot);
-  return index.items[recordingId] || null;
+  const recording = index.items[recordingId] || null;
+  if (recording) {
+    assertValidRecording(repoRoot, recording);
+  }
+  return recording;
+}
+
+export function listRecordings(repoRoot) {
+  const index = loadRecordingIndex(repoRoot);
+  return Object.values(index.items)
+    .filter((recording) => isValidRecording(repoRoot, recording))
+    .sort(compareRecordingsNewestFirst);
 }
 
 export function upsertRecordings(repoRoot, recordings) {
@@ -48,4 +61,48 @@ export function upsertRecordings(repoRoot, recordings) {
     count: recordings.length,
     recordings: Object.values(index.items),
   };
+}
+
+function assertRecordingIndexShape(index, indexPath) {
+  if (!index || typeof index !== "object" || Array.isArray(index)) {
+    throw new Error(`Recording index must be an object: ${indexPath}`);
+  }
+
+  if (!index.items || typeof index.items !== "object" || Array.isArray(index.items)) {
+    throw new Error(`Recording index is missing an object \`items\` field: ${indexPath}`);
+  }
+}
+
+function assertValidRecording(repoRoot, recording) {
+  assertValidAgainstSchema(
+    repoRoot,
+    "recording.schema.json",
+    recording,
+    `recording ${(recording && recording.recordingId) || "(unknown)"}`,
+  );
+}
+
+function isValidRecording(repoRoot, recording) {
+  try {
+    assertValidRecording(repoRoot, recording);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function compareRecordingsNewestFirst(left, right) {
+  const leftTime = toTimestamp(left.capturedAt);
+  const rightTime = toTimestamp(right.capturedAt);
+
+  if (leftTime !== rightTime) {
+    return rightTime - leftTime;
+  }
+
+  return (right.recordingId || "").localeCompare(left.recordingId || "");
+}
+
+function toTimestamp(value) {
+  const parsed = Date.parse(value || "");
+  return Number.isNaN(parsed) ? 0 : parsed;
 }

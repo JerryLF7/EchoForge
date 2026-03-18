@@ -10,7 +10,8 @@
   "scripts": {
     "start": "node runtime/cli/main.js",
     "check": "node runtime/cli/main.js --help",
-    "validate:schemas": "node scripts/validate-schemas.js"
+    "validate:schemas": "node scripts/validate-schemas.js",
+    "test": "node --test"
   },
   "engines": {
     "node": ">=20"

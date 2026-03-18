@@ -16,7 +16,9 @@ export function loadRunsIndex(repoRoot) {
     };
   }
 
-  return JSON.parse(fs.readFileSync(indexPath, "utf8"));
+  const index = JSON.parse(fs.readFileSync(indexPath, "utf8"));
+  assertRunsIndexShape(index, indexPath);
+  return index;
 }
 
 export function saveRunsIndex(repoRoot, index) {
@@ -32,12 +34,18 @@ export function createRunId(recordingId) {
 
 export function getRunManifest(repoRoot, runId) {
   const index = loadRunsIndex(repoRoot);
-  return index.items[runId] || null;
+  const manifest = index.items[runId] || null;
+  if (manifest) {
+    assertValidRunManifest(repoRoot, manifest);
+  }
+  return manifest;
 }
 
 export function listRunManifests(repoRoot) {
   const index = loadRunsIndex(repoRoot);
-  return Object.values(index.items).sort(compareRunsNewestFirst);
+  return Object.values(index.items)
+    .filter((manifest) => isValidRunManifest(repoRoot, manifest))
+    .sort(compareRunsNewestFirst);
 }
 
 export function listRunsForRecording(repoRoot, recordingId) {
@@ -59,6 +67,34 @@ export function upsertRunManifest(repoRoot, manifest) {
   index.items[manifest.runId] = manifest;
   saveRunsIndex(repoRoot, index);
   return manifest;
+}
+
+function assertRunsIndexShape(index, indexPath) {
+  if (!index || typeof index !== "object" || Array.isArray(index)) {
+    throw new Error(`Runs index must be an object: ${indexPath}`);
+  }
+
+  if (!index.items || typeof index.items !== "object" || Array.isArray(index.items)) {
+    throw new Error(`Runs index is missing an object \`items\` field: ${indexPath}`);
+  }
+}
+
+function assertValidRunManifest(repoRoot, manifest) {
+  assertValidAgainstSchema(
+    repoRoot,
+    "run.schema.json",
+    manifest,
+    `run manifest ${(manifest && manifest.runId) || "(unknown)"}`,
+  );
+}
+
+function isValidRunManifest(repoRoot, manifest) {
+  try {
+    assertValidRunManifest(repoRoot, manifest);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 function compareRunsNewestFirst(left, right) {
