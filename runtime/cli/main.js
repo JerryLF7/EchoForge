@@ -19,6 +19,7 @@ import {
 import { processBatchCommand } from "./batch-commands.js";
 import { loadProfile } from "./profile-loader.js";
 import { rebuildMinutesCommand, republishRunCommand } from "./rebuild-commands.js";
+import { repairStoredState } from "./state-repair.js";
 import {
   commandCatalog,
   formatCommandList,
@@ -274,6 +275,13 @@ async function main(argv) {
     process.exit(report.ok ? 0 : 1);
   }
 
+  if (parsed.command === "repair" && parsed.subcommand === "state") {
+    const runId = parsed.positionals[0] || parsed.options.id || null;
+    const report = await repairStoredState(repoRoot, { runId });
+    console.log(formatJson(report));
+    process.exit(report.ok ? 0 : 1);
+  }
+
   if (parsed.command === "process" && parsed.subcommand === "recording") {
     const recordingId = parsed.positionals[0] || parsed.options.id;
     if (!recordingId) {
@@ -521,6 +529,7 @@ function printHelp() {
     "  echoforge rebuild run run_rec_001_abcd --profile lecture",
     "  echoforge rebuild publish run_rec_001_abcd",
     "  echoforge inspect validate [runId]",
+    "  echoforge repair state [runId]",
     "  echoforge plan --profile general",
     "",
     "Global options:",

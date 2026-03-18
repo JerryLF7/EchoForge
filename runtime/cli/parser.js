@@ -23,6 +23,10 @@ export const commandCatalog = {
     description: "Print the resolved execution plan without running it.",
     subcommands: [],
   },
+  repair: {
+    description: "Repair legacy state and artifacts to the current contracts.",
+    subcommands: ["state"],
+  },
   version: {
     description: "Print the CLI version.",
     subcommands: [],

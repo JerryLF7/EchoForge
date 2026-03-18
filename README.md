@@ -81,6 +81,27 @@ The host-agent result is expected to contain:
 - `transcriptUtterances` for machine consumption
 - `obsidianTranscriptMarkdown` for direct human reading
 
+## CLI Surface
+
+Current operational commands:
+
+- `echoforge ingest local --file <path>`
+- `echoforge ingest chat --file <path>`
+- `echoforge ingest source --kind feishu_minutes --item <itemId> --manifest <manifest.json>`
+- `echoforge sync feishu`
+- `echoforge sync source --kind feishu_minutes --manifest <manifest.json>`
+- `echoforge process local --file <path> --audio-result <result.json>`
+- `echoforge process recording <recordingId> --audio-result <result.json>`
+- `echoforge process batch --batch <batch.json>`
+- `echoforge rebuild run <runId>`
+- `echoforge rebuild minutes <runId>`
+- `echoforge rebuild publish <runId>`
+- `echoforge inspect validate [runId]`
+- `echoforge repair state [runId]`
+
+`inspect validate` checks state and artifacts against current schemas.
+`repair state` upgrades legacy run artifacts to the current contracts and regenerates missing metadata such as `run.json` and `transcript.md`.
+
 ## Repository Layout
 
 ```text

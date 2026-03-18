@@ -286,6 +286,7 @@ Responsibilities:
 - local processing
 - inspection commands
 - schema availability checks
+- legacy artifact validation and repair
 
 ### `pipeline/providers/`
 

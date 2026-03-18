@@ -19,7 +19,7 @@ It keeps source adapters, core pipeline logic, runtime wrappers, profiles, and s
 - `runtime/agent/`
   - thin wrapper for host-agent task preparation and completion
 - `runtime/cli/`
-  - thin wrapper for local CLI execution
+  - thin wrapper for local CLI execution, validation, and legacy-state repair
 - `schemas/`
   - structured JSON or typed schemas for transcript and minutes outputs
 - `scripts/`
@@ -35,3 +35,4 @@ It keeps source adapters, core pipeline logic, runtime wrappers, profiles, and s
 - adapters should only handle source-specific ingestion concerns
 - core intelligence logic should remain source-agnostic
 - host-agent model choice and credentials should remain outside EchoForge
+- legacy state should be repaired into current artifact contracts instead of adding long-term compatibility hacks
