@@ -1,5 +1,6 @@
 export function buildAgentAudioUnderstandingTask({ recording, profile, request }) {
   return {
+    taskSchema: "agent-audio-task.schema.json",
     taskKind: "audio_understanding",
     taskVersion: "2026-03-17",
     recording: {
@@ -33,6 +34,7 @@ export function buildAgentAudioUnderstandingTask({ recording, profile, request }
         "Infer speakers when possible. If identity is unknown, use labels like Speaker 1, Speaker 2.",
     },
     resultContract: {
+      schema: request.outputSchema || "agent-audio-result.schema.json",
       contentType: "application/json",
       requiredFields: [
         "language",

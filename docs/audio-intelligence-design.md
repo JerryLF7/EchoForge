@@ -2,571 +2,341 @@
 
 ## Goal
 
-Build an agent-native audio intelligence system that recreates the useful parts of Feishu Minutes AI while keeping the workflow local, modular, and portable.
+EchoForge is an agent-native audio intelligence pipeline for turning raw recordings into reusable knowledge artifacts.
 
-The system should:
+The project is optimized for a host-agent workflow:
 
-- accept audio from multiple sources, with Feishu Minutes as the first source adapter
-- use agents as the primary runtime instead of a traditional GUI
-- keep a CLI for debugging and batch testing
-- support pluggable prompts for different scenarios
-- produce structured meeting or lecture outputs suitable for Obsidian
-- treat `feishu_minutes_sync` as one source module, not as the whole project
+- a host agent such as OpenClaw is the only entry surface
+- EchoForge provides the pipeline, state model, artifact contracts, and publishing logic
+- the host agent uses its own configured multimodal model to understand audio
+- EchoForge does not manage API keys, providers, or model selection
 
-## Product Direction
+The first target experience is Feishu-Minutes-like output for meetings and lectures, but the architecture is source-agnostic and can grow beyond Feishu.
 
-This is not just a downloader and not just a transcript summarizer.
+## Product Shape
 
-It is a layered audio intelligence pipeline:
+The intended delivery is a CLI tool that can be wrapped as a skill by a host agent.
 
-1. ingest raw audio from one or more sources
-2. transcribe and structure the audio
-3. generate meeting or lecture intelligence artifacts
-4. publish structured outputs into a note system such as Obsidian
+Why this shape:
 
-The target experience is closer to Feishu Minutes AI than to a plain ASR tool.
+- the pipeline stays deterministic and testable in code
+- the host agent can call it as a skill without reimplementing orchestration in prompts
+- local replay and debugging stay simple through the CLI
+- model/runtime concerns remain with the host agent, where they already belong
 
-## Key Constraints
+In practice, the user experience is:
 
-### Agent-first runtime
+1. the host agent invokes EchoForge
+2. EchoForge prepares or loads a recording
+3. EchoForge emits a structured audio-understanding task
+4. the host agent runs multimodal understanding with its own model/session
+5. the host agent returns a structured result JSON
+6. EchoForge resumes the pipeline and publishes artifacts
 
-The project should be designed for native agent invocation.
+## Design Principles
 
-Why:
+### Agent-native, not provider-native
 
-- no separate GUI is needed for normal use
-- no separate API key UX is needed for the end user
-- the same pipeline can be triggered by OpenClaw or other agent runtimes
-- audio from other surfaces can be handed to the same pipeline without building dedicated frontends
+EchoForge assumes the host agent already knows how to call a multimodal model.
 
-Implication:
+So EchoForge should not introduce:
 
-- business logic must live in reusable modules
-- runtime entrypoints should be thin wrappers
-- CLI remains available only for debugging, replay, and local testing
+- provider selection UX
+- provider-specific adapters for model calls
+- API key configuration
+- model-id configuration inside profiles
 
-### Modular prompts
+The only runtime assumption is that the host agent is currently using a model that can understand audio well enough for the requested profile.
 
-Different audio scenarios need different processing styles.
+### One machine transcript, one human transcript
 
-Examples:
+The audio-understanding stage produces two different outputs on purpose:
 
-- company meeting
-- lecture or talk
-- interview
-- personal voice memo
-- brainstorming session
+- `transcript.json`: the machine transcript used by downstream chaptering and intelligence
+- `transcript.md`: the human-readable transcript written to Obsidian-friendly output
 
-Implication:
+They are related, but not interchangeable.
 
-- prompts must not be hardcoded into the main logic
-- prompts should be split by stage and by scenario profile
-- stage prompts should be independently replaceable
+The machine transcript should stay structurally stable and close to the spoken content.
+The human transcript can be lightly cleaned for readability.
 
-### Feishu is only one source
+### Structured artifacts over opaque blobs
 
-`feishu_minutes_sync` should be treated as a source adapter.
+Every downstream stage should read stable JSON artifacts instead of re-parsing large markdown blobs.
 
-It is responsible for:
+Current artifact flow:
 
-- discovering new Feishu Minutes recordings
-- extracting real downloadable audio URLs
-- downloading raw audio
-- emitting normalized metadata
+- `recording.json`
+- `transcript.json`
+- `transcript.md`
+- `chapters.json`
+- `minutes.json`
+- `minutes.md`
+- `run.json`
 
-It is not responsible for the whole intelligence pipeline.
+### Profiles shape behavior, not infrastructure
 
-## What We Need to Recreate from Feishu AI
+Profiles define scenario intent.
 
-Based on observed Feishu AI output, the useful target product contains two large capability groups.
+They currently control:
 
-### 1. Structured transcription
+- scenario prompt
+- terminology hints
+- output preset
+- enabled sections such as `todos` or `glossary`
 
-This is more than raw ASR text.
+Profiles do not define:
 
-Needed outputs:
+- API credentials
+- provider names
+- concrete model ids
 
-- timestamped transcript
-- speaker separation
-- chapter segmentation
-- chapter timeline
-- key utterance extraction
-
-### 2. Intelligent minutes
-
-This is the harder part.
-
-Observed Feishu output is organized into stable sections rather than a single summary blob.
-
-Common sections observed:
-
-- summary
-- intelligent chapters
-- key decisions
-- quote highlights
-- related links
-
-In work meeting scenarios, an additional section appears:
-
-- todos
-n
-This means the system should generate multiple structured views from the same transcript, not a single generic summary.
-
-## System Architecture
-
-Recommended top-level architecture:
+## Current Runtime Architecture
 
 ```text
-project/
-├── adapters/
-│   └── sources/
-│       ├── feishu_minutes/
-│       ├── local_file/
-│       └── ...
-├── pipeline/
-│   ├── ingest/
-│   ├── transcribe/
-│   ├── chapterize/
-│   ├── intelligence/
-│   └── publish/
-├── prompts/
-│   ├── shared/
-│   └── profiles/
-├── profiles/
-│   ├── work_meeting/
-│   ├── lecture/
-│   ├── interview/
-│   └── general/
-├── runtime/
-│   ├── agent/
-│   └── cli/
-├── schemas/
-├── docs/
-└── state/
+host agent / skill wrapper
+        |
+        v
+runtime/agent/main.js
+        |
+        +--> prepare-understanding
+        |      |
+        |      v
+        |  build host-agent task JSON
+        |
+        +--> complete-understanding --result <result.json>
+               |
+               v
+        pipeline/orchestrator.js
+               |
+               +--> understand-audio
+               +--> chapterize
+               +--> intelligence
+               +--> publish
 ```
 
-## Major Modules
+The normal CLI at `runtime/cli/main.js` remains useful for local inspection, replay, and debugging.
+The agent wrapper at `runtime/agent/main.js` is the host-agent contract surface.
 
-### Source adapters
+## Pipeline Stages
 
-Responsibility:
-
-- discover audio items from a source
-- download or normalize the source asset
-- return a standard source record
-
-First adapter:
-
-- `feishu_minutes`
-
-Future adapters:
-
-- local file import
-- direct message audio import
-- manual drop folder
-
-### Ingest layer
+### 1. Ingest
 
 Responsibility:
 
-- accept audio input from adapters
-- assign a stable recording id
-- normalize metadata such as title, source, created time, and original path
-- hand off to downstream processing
+- normalize a new audio input into a recording record
+- assign a stable `recordingId`
+- preserve source metadata and local audio path
 
-### Transcribe layer
+Primary output:
 
-Responsibility:
+- `recording.json`
 
-- run ASR
-- retain timestamps
-- support speaker diarization if the model or backend supports it
-- output utterance-level transcript blocks
-
-Output should not be a single string. It should be structured.
-
-### Chapterize layer
+### 2. Audio understanding
 
 Responsibility:
 
-- segment the transcript into semantic chapters
-- assign chapter titles
-- attach start and end timestamps
-- summarize each chapter
+- prepare a host-agent task for multimodal understanding
+- accept the host agent's structured result
+- normalize that result into EchoForge transcript artifacts
 
-This layer is essential because it creates the skeleton that later minutes generation depends on.
+Important detail:
 
-### Intelligence layer
+This stage is not a direct model call. It is a handoff boundary between EchoForge and the host agent.
 
-Responsibility:
+Primary outputs:
 
-- generate the Feishu-like output sections
-- work from transcript plus chapter structure
-- use scenario-specific prompts
+- `transcript.json`
+- `transcript.md`
 
-Target subsections:
-
-- summary
-- intelligent chapters
-- todos
-- decisions
-- quotes
-- related links
-- optional participant viewpoints
-- optional glossary or concepts
-
-This is the true core of the project.
-
-### Publish layer
+### 3. Chapterize
 
 Responsibility:
 
-- convert structured outputs into final Markdown files
-- optionally generate sidecar JSON for machine reuse
-- publish to Obsidian-friendly paths
+- segment the machine transcript into semantic chunks
+- assign titles, summaries, and timestamps
+- preserve the source transcript role for traceability
 
-The first version can target a single vault path.
+Primary output:
 
-Vault routing between work and life can be added later.
+- `chapters.json`
 
-## Delivery and Installation Strategy
+### 4. Intelligence
 
-The final delivery should be a local project, not a GUI application and not a skill-only bundle.
+Responsibility:
 
-Recommended shape:
+- generate structured minutes sections from the machine transcript and chapters
+- apply output-preset heuristics for meetings vs lectures
+- keep traceability back to transcript/chapter sources
 
-- one standalone repository for the full pipeline
-- one CLI entrypoint as the operational core
-- one optional OpenClaw skill as a thin wrapper
-- externalized config, prompts, and local state
+Current sections include:
 
-This keeps the project portable, testable, and agent-friendly.
+- `summary`
+- `chapters`
+- `decisions`
+- `todos`
+- `quotes`
+- `links`
+- `glossary`
 
-### Why CLI is the core
+Primary output:
 
-The project should expose a single master command or master entrypoint.
+- `minutes.json`
 
-Reasons:
+### 5. Publish
 
-- orchestration belongs in code, not in prompt instructions
-- the same codepath can be used by CLI, agent runtime, and future schedulers
-- migration is easier because the runtime contract stays stable
-- internal modules can evolve without changing the outer interface too often
+Responsibility:
 
-Examples of top-level actions:
+- persist all JSON artifacts
+- render Obsidian-ready markdown
+- write run metadata for later rebuilds and inspection
 
-- sync audio from Feishu
-- process one local audio file
-- rebuild minutes for one existing recording
-- publish results to Obsidian
+Primary outputs:
 
-### Skill boundary
+- `minutes.md`
+- `run.json`
 
-If a skill is added later, it should not manually coordinate many internal scripts.
+## Host-Agent Protocol
 
-The skill should only:
+The host-agent protocol is the most important boundary in the current system.
 
-- decide when this project is the right tool
-- pass parameters to the master command
-- explain the high-level usage contract to the agent
+### Prepare phase
 
-The skill should not contain the real orchestration logic.
+`runtime/agent/main.js prepare-understanding ...` emits a task object with:
 
-That logic belongs in the project code.
+- `taskSchema`: `agent-audio-task.schema.json`
+- `taskKind`: `audio_understanding`
+- `taskVersion`: `2026-03-17`
+- `recording`: normalized recording metadata plus local audio path
+- `profile`: scenario identity and output preset
+- `guidance`: scenario prompt, terminology hints, transcript instructions, and speaker/timestamp guidance
+- `resultContract`: expected JSON result shape and schema pointer
 
-### Installation shape
+The task is designed for the host agent to execute with its own multimodal context and model session.
 
-Recommended install model:
+### Complete phase
 
-- clone repository
-- create local Python environment
-- install dependencies
-- copy config template
-- restore auth state and local paths
-- run health check or dry run
+The host agent writes a JSON result and then calls:
 
-This makes migration simple and keeps secrets outside version control.
+`runtime/agent/main.js complete-understanding ... --result <file>`
 
-### Portability requirements
+That result is expected to contain:
 
-To stay easy to migrate, the project should keep these boundaries:
+- `language`
+- `summary`
+- `transcriptUtterances`
+- `obsidianTranscriptMarkdown`
+- optional `agent.host`, `agent.model`, `agent.sessionId`
 
-- code separate from local state
-- config separate from code
-- prompts separate from code
-- adapters separate from core pipeline
-- agent wrapper separate from business logic
+Formal schemas live in:
 
-On a new machine, migration should mostly mean:
+- `schemas/agent-audio-task.schema.json`
+- `schemas/agent-audio-result.schema.json`
 
-1. clone the repo
-2. create the environment
-3. restore config
-4. restore auth state
-5. verify one dry run
+## Artifact Contracts
 
-## Runtime Design
+### Machine transcript
 
-### Agent runtime
+`transcript.json` is the canonical machine-readable transcript.
 
-Primary runtime.
+Key guarantees:
+
+- `contentRole` is always `machine_transcript`
+- downstream stages must consume this artifact, not the markdown transcript
+- `provider.kind` records that the transcript came from host-agent multimodal audio understanding
+- `understanding` stores the prompt profile and transcript-generation context
+
+### Human transcript
+
+`transcript.md` is for direct reading and publishing.
+
+Key guarantees:
+
+- it is the Obsidian-facing transcript artifact
+- it may be lightly cleaned for readability
+- it is not the source of truth for downstream NLP logic
+
+### Chapters and minutes provenance
+
+To avoid mixing human-readable output with machine-processing input:
+
+- `chapters.json.sourceTranscript.contentRole` must stay `machine_transcript`
+- `minutes.json.sourceArtifacts` records transcript and chapter provenance
+- `minutes.json.sourceArtifacts.transcriptMarkdownRole` is `human_readable_transcript`
+
+This split keeps intelligent minutes anchored to a stable machine transcript while still publishing a nicer transcript to the vault.
+
+## Repository Responsibilities
+
+### `runtime/agent/`
+
+The host-agent integration surface.
 
 Responsibilities:
 
-- accept source material through agent interactions
-- choose a processing profile
-- invoke the pipeline modules
-- return progress or final outputs when needed
+- emit audio-understanding tasks
+- resume the pipeline with a host-produced result
 
-Examples:
+### `runtime/cli/`
 
-- agent fetches newly synced Feishu recordings on schedule
-- user sends an audio file directly to the agent
-- user asks the agent to re-run minutes generation with another profile
-
-### CLI runtime
-
-Secondary runtime.
+Operational and debugging entrypoints.
 
 Responsibilities:
 
-- local debugging
-- replay and batch processing
-- pipeline validation
-- profile comparison
+- local processing
+- inspection commands
+- schema availability checks
 
-CLI should wrap the same module graph used by the agent runtime.
+### `pipeline/providers/`
 
-## Prompt Strategy
+Despite the directory name, this is now effectively the host-agent protocol layer for audio understanding.
 
-Prompts should be split by stage.
+Current behavior:
 
-Recommended prompt groups:
+- resolves the built-in `agent-native` runtime
+- builds the understanding request
+- normalizes host-agent result payloads
 
-- transcript cleanup
-- speaker normalization
-- chapter segmentation
-- chapter summarization
-- global summary
-- todo extraction
-- decision extraction
-- quote extraction
-- related link generation
+It should not drift back toward direct provider SDK integrations unless the product direction changes.
 
-Prompts should also support profiles.
+### `pipeline/stages/`
 
-Example profile mapping:
+Pure pipeline logic.
 
-- `work_meeting`
-  - stronger todo and decision extraction
-  - more concise operational summary
-- `lecture`
-  - stronger concept extraction
-  - more emphasis on knowledge points and quote highlights
-- `interview`
-  - stronger speaker viewpoint separation
-- `general`
-  - fallback balanced mode
+Responsibilities:
 
-This design keeps the pipeline stable while making the behavior adjustable.
+- understand audio result normalization
+- chapter extraction
+- minutes generation
+- artifact publishing
 
-## Output Schema
+### `schemas/`
 
-A structured schema is needed before final Markdown rendering.
+The artifact and protocol contracts.
 
-Suggested first version:
+Current schemas cover:
 
-```json
-{
-  "metadata": {
-    "recording_id": "string",
-    "title": "string",
-    "source_type": "feishu_minutes",
-    "source_url": "string",
-    "start_time": "string",
-    "end_time": "string",
-    "duration_seconds": 0,
-    "profile": "work_meeting"
-  },
-  "transcript": {
-    "utterances": [
-      {
-        "start": 0.0,
-        "end": 0.0,
-        "speaker": "Speaker 1",
-        "text": "string"
-      }
-    ]
-  },
-  "chapters": [
-    {
-      "title": "string",
-      "start": 0.0,
-      "end": 0.0,
-      "summary": "string",
-      "speakers": ["Speaker 1"],
-      "highlights": ["string"]
-    }
-  ],
-  "minutes": {
-    "summary": "string",
-    "todos": [
-      {
-        "task": "string",
-        "owner": "string",
-        "evidence": "string"
-      }
-    ],
-    "decisions": [
-      {
-        "decision": "string",
-        "rationale": "string",
-        "evidence": "string"
-      }
-    ],
-    "quotes": [
-      {
-        "text": "string",
-        "speaker": "string",
-        "timestamp": 0.0
-      }
-    ],
-    "related_links": [
-      {
-        "title": "string",
-        "target": "string",
-        "reason": "string"
-      }
-    ]
-  }
-}
-```
+- recordings
+- profiles
+- transcripts
+- chapters
+- minutes
+- runs
+- host-agent task/result payloads
 
-This schema separates reusable structured data from final presentation.
+## Near-term Priorities
 
-## Obsidian Output Shape
+1. improve host-agent skill ergonomics around `prepare-understanding` and `complete-understanding`
+2. harden schema-aware validation beyond file-existence and JSON parse checks
+3. refine intelligence extraction quality for meetings and lectures
+4. add more source adapters once the host-agent path is stable
 
-The first markdown target should resemble Feishu Minutes structure while remaining note-friendly.
+## Non-goals for the current architecture
 
-Suggested layout:
+These ideas are intentionally out of scope for now:
 
-```markdown
-# {Title}
-
-- Source: {source}
-- Time: {time range}
-- Duration: {duration}
-- Profile: {profile}
-
-## 总结
-
-...
-
-## 智能章节
-
-### 1. {chapter title} [{start} - {end}]
-
-- 摘要: ...
-- 关键点:
-  - ...
-
-## 待办
-
-- [ ] ...
-
-## 关键决策
-
-- ...
-
-## 金句时刻
-
-> ...
-
-## 相关链接
-
-- [[...]]
-```
-
-This can be evolved later with vault routing, Dataview fields, and sidecar metadata files.
-
-## Relationship to Existing Skills
-
-### `long-audio-transcript-processor`
-
-Useful for:
-
-- long transcript cleanup
-- continuity across segments
-- terminology tracking
-- iterative refinement
-
-Not sufficient for:
-
-- source ingestion
-- automatic chapter timeline generation
-- full Feishu-style minutes productization
-
-### `long-audio-to-obsidian`
-
-Useful for:
-
-- final document consolidation
-- archiving processed artifacts into Obsidian-friendly markdown
-
-Not sufficient for:
-
-- intelligent content generation
-- multi-view minutes output design
-
-## Recommended Development Order
-
-### Phase 1: Foundation
-
-- define project structure
-- define shared schema
-- isolate `feishu_minutes_sync` as a source adapter
-- add a local file source adapter stub
-
-### Phase 2: Structured transcription
-
-- choose ASR backend strategy
-- produce utterance-level structured transcript
-- add speaker separation support
-- add chapter segmentation
-
-### Phase 3: Intelligence generation
-
-- build profile-based prompts
-- generate summary, decisions, todos, quotes, and chapter summaries
-- compare outputs across work meeting and lecture samples
-
-### Phase 4: Publishing
-
-- generate Obsidian-friendly markdown
-- optionally generate machine-readable JSON sidecars
-
-### Phase 5: Runtime integration
-
-- wire to agent runtime
-- keep CLI as a debug surface
-- add scheduling later if needed
-
-## Decisions Made So Far
-
-- no GUI as a primary interface
-- agent-first, CLI-second
-- Feishu Minutes support exists as a source module, not as the whole product
-- prompt behavior must be modular and scenario-specific
-- work/life vault routing is valuable but postponed
-
-## Open Questions
-
-- which ASR backend should be used first
-- whether diarization is done by ASR backend or by a separate stage
-- how much post-processing should be deterministic rules vs LLM prompts
-- whether related links should be inferred from Obsidian contents in the first version or added later
-- how aggressively to optimize for exact Feishu output parity versus practical usefulness
-
-## Immediate Next Step
-
-Start converting the current Feishu downloader into a source adapter inside the larger architecture, then define the transcript and minutes schemas before implementing the intelligence layer.
+- direct API-key management inside EchoForge
+- per-profile model configuration
+- embedding provider SDK calls into the pipeline
+- making markdown the source of truth for downstream intelligence
+- coupling the system to Feishu as the only source

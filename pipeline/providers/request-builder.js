@@ -16,7 +16,7 @@ export function buildAudioUnderstandingRequest({ recording, profile }) {
     },
     scenarioPrompt: audioUnderstanding.prompt || "Understand the audio.",
     terminologyHints: audioUnderstanding.terminologyHints || [],
-    outputSchema: "transcript.schema.json",
+    outputSchema: "agent-audio-result.schema.json",
     agentResult: audioUnderstanding.result || null,
   };
 }

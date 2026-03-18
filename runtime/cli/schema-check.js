@@ -3,10 +3,14 @@ import path from "node:path";
 
 export function assertSchemaFilesExist(repoRoot) {
   const required = [
+    "agent-audio-result.schema.json",
+    "agent-audio-task.schema.json",
+    "profile.schema.json",
     "recording.schema.json",
-    "transcript.schema.json",
     "chapters.schema.json",
     "minutes.schema.json",
+    "run.schema.json",
+    "transcript.schema.json",
   ];
 
   for (const file of required) {
