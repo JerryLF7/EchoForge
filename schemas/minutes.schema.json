@@ -118,8 +118,26 @@
     "sourceArtifacts": {
       "type": "object",
       "properties": {
+        "transcriptContentRole": {
+          "type": "string",
+          "enum": ["machine_transcript"]
+        },
+        "transcriptProviderKind": {
+          "type": "string"
+        },
+        "chapterSourceContentRole": {
+          "type": ["string", "null"],
+          "enum": ["machine_transcript", null]
+        },
         "transcriptPath": {
           "type": "string"
+        },
+        "transcriptMarkdownPath": {
+          "type": "string"
+        },
+        "transcriptMarkdownRole": {
+          "type": "string",
+          "enum": ["human_readable_transcript"]
         },
         "chaptersPath": {
           "type": "string"

@@ -5,8 +5,6 @@
   "outputPreset": "knowledge",
   "language": "auto",
   "audioUnderstanding": {
-    "provider": "stub",
-    "model": "unconfigured",
     "capabilities": {
       "speakerInference": true,
       "timestampAlignment": true,

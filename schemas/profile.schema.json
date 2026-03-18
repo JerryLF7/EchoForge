@@ -20,10 +20,8 @@
     "language": { "type": "string" },
     "audioUnderstanding": {
       "type": "object",
-      "required": ["provider", "model", "capabilities", "prompt", "terminologyHints"],
+      "required": ["capabilities", "prompt", "terminologyHints"],
       "properties": {
-        "provider": { "type": "string" },
-        "model": { "type": "string" },
         "capabilities": {
           "type": "object",
           "additionalProperties": { "type": "boolean" }

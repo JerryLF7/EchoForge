@@ -4,7 +4,7 @@
 
 EchoForge is the top-level repository for the audio intelligence system.
 
-It keeps source adapters, core pipeline logic, runtime wrappers, prompts, profiles, and schemas in one place while keeping local secrets and runtime state outside version control.
+It keeps source adapters, core pipeline logic, runtime wrappers, profiles, and schemas in one place while keeping runtime state outside version control.
 
 ## Top-Level Directories
 
@@ -12,14 +12,12 @@ It keeps source adapters, core pipeline logic, runtime wrappers, prompts, profil
   - source-specific ingest modules such as Feishu Minutes or local file import
 - `pipeline/`
   - source-agnostic processing logic
-- `prompts/shared/`
-  - reusable prompt fragments and stage prompts
-- `prompts/profiles/`
-  - scenario-specific prompt overrides
+- `pipeline/providers/`
+  - host-agent audio understanding task/result contract
 - `profiles/`
-  - runtime processing profiles such as `work_meeting` or `lecture`
+  - scenario guidance such as `work_meeting` or `lecture`
 - `runtime/agent/`
-  - thin wrapper for agent-triggered execution
+  - thin wrapper for host-agent task preparation and completion
 - `runtime/cli/`
   - thin wrapper for local CLI execution
 - `schemas/`
@@ -36,5 +34,4 @@ It keeps source adapters, core pipeline logic, runtime wrappers, prompts, profil
 - orchestration belongs in code, not in skill prompt text
 - adapters should only handle source-specific ingestion concerns
 - core intelligence logic should remain source-agnostic
-- prompts should remain swappable and externalized
-- secrets should live outside the repository or in a gitignored local directory
+- host-agent model choice and credentials should remain outside EchoForge

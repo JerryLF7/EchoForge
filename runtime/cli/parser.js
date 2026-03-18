@@ -13,7 +13,7 @@ export const commandCatalog = {
   },
   rebuild: {
     description: "Re-generate downstream artifacts from prior state.",
-    subcommands: ["recording", "minutes", "publish"],
+    subcommands: ["run", "minutes", "publish"],
   },
   inspect: {
     description: "Inspect stored state, schemas, and profiles.",

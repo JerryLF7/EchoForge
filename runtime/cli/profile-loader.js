@@ -8,8 +8,6 @@ const defaultProfile = {
   outputPreset: "default",
   language: "auto",
   audioUnderstanding: {
-    provider: "stub",
-    model: "unconfigured",
     capabilities: {
       speakerInference: true,
       timestampAlignment: true,
@@ -30,6 +28,9 @@ export function loadProfile(repoRoot, profileName) {
       ...defaultProfile,
       id: profileName,
       inheritedFrom: "builtin-default",
+      audioUnderstanding: {
+        ...defaultProfile.audioUnderstanding,
+      },
     };
   }
 

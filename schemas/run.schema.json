@@ -40,10 +40,11 @@
     },
     "artifacts": {
       "type": "object",
-      "required": ["recording", "transcript", "chapters", "minutes", "markdown"],
+      "required": ["recording", "transcript", "transcriptMarkdown", "chapters", "minutes", "markdown"],
       "properties": {
         "recording": { "type": "string" },
         "transcript": { "type": "string" },
+        "transcriptMarkdown": { "type": "string" },
         "chapters": { "type": "string" },
         "minutes": { "type": "string" },
         "markdown": { "type": "string" }

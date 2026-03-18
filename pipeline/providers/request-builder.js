@@ -1,9 +1,13 @@
-export function buildAudioUnderstandingRequest({ recording, profile, overrideProvider }) {
+import { assertAudioProviderSelection } from "./provider-registry.js";
+
+export function buildAudioUnderstandingRequest({ recording, profile }) {
   const audioUnderstanding = profile.audioUnderstanding || {};
+  const selection = assertAudioProviderSelection({
+    profile,
+  });
 
   return {
-    providerId: overrideProvider || audioUnderstanding.provider || "stub",
-    model: audioUnderstanding.model || null,
+    providerId: selection.providerId,
     language: profile.language || "auto",
     audio: {
       path: recording.audio.path,
@@ -13,5 +17,6 @@ export function buildAudioUnderstandingRequest({ recording, profile, overridePro
     scenarioPrompt: audioUnderstanding.prompt || "Understand the audio.",
     terminologyHints: audioUnderstanding.terminologyHints || [],
     outputSchema: "transcript.schema.json",
+    agentResult: audioUnderstanding.result || null,
   };
 }

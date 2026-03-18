@@ -4,8 +4,8 @@ EchoForge is an agent-native audio intelligence pipeline.
 
 It is designed to turn raw audio into structured, reusable knowledge artifacts such as:
 
-- timestamped transcripts
-- speaker-separated utterances
+- machine transcripts for downstream intelligence
+- human-readable transcripts for Obsidian
 - chaptered timelines
 - AI minutes and summaries
 - Obsidian-ready markdown outputs
@@ -23,6 +23,13 @@ The project is designed to be:
 - modular
 - prompt-configurable
 - portable across machines
+
+The core assumption is:
+
+- EchoForge is invoked by a host agent such as OpenClaw
+- EchoForge does not own model credentials
+- EchoForge does not choose a model directly
+- the host agent performs multimodal audio understanding and returns a structured result
 
 ## Current Direction
 
@@ -43,11 +50,36 @@ That stage should accept:
 - a scenario-specific prompt from the active profile
 - optional terminology hints and context
 
-The result should be a structured transcript artifact that is already biased toward the target scenario instead of a plain raw ASR dump.
+The result should be two related artifacts:
 
-Provider adapters for this stage live under `pipeline/providers/`.
+- a machine transcript for downstream chaptering and minutes generation
+- a human-readable transcript for direct writing into Obsidian
 
-Profiles explicitly declare the target provider, model, prompt, and capability expectations for this stage.
+EchoForge itself does not call a model API directly.
+Instead, `runtime/agent/` emits a task contract for the host agent and then accepts the host agent's JSON result.
+
+Profiles declare:
+
+- scenario prompt
+- terminology hints
+- capability expectations
+
+They do not declare API keys, providers, or concrete model ids.
+
+## Host-Agent Flow
+
+Recommended flow:
+
+1. `echoforge ingest ...` or `echoforge-agent prepare-understanding ...`
+2. host agent reads the emitted task spec
+3. host agent uses its own multimodal model session to understand the audio
+4. host agent writes a JSON result file
+5. `echoforge process ... --audio-result <file>` or `echoforge-agent complete-understanding ...`
+
+The host-agent result is expected to contain:
+
+- `transcriptUtterances` for machine consumption
+- `obsidianTranscriptMarkdown` for direct human reading
 
 ## Repository Layout
 
@@ -57,10 +89,8 @@ EchoForge/
 │   └── sources/
 ├── docs/
 ├── pipeline/
+│   └── providers/
 ├── profiles/
-├── prompts/
-│   ├── profiles/
-│   └── shared/
 ├── runtime/
 │   ├── agent/
 │   └── cli/

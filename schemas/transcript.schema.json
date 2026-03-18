@@ -3,10 +3,14 @@
   "$id": "https://echoforge.local/schemas/transcript.schema.json",
   "title": "Understood Transcript",
   "type": "object",
-  "required": ["recordingId", "language", "mode", "utterances", "provider", "understanding"],
+  "required": ["recordingId", "contentRole", "language", "mode", "utterances", "provider", "understanding"],
   "properties": {
     "recordingId": {
       "type": "string"
+    },
+    "contentRole": {
+      "type": "string",
+      "enum": ["machine_transcript"]
     },
     "language": {
       "type": "string"

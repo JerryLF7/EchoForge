@@ -1,4 +1,5 @@
-export async function generateMinutes({ recording, chapters, profile }) {
+export async function generateMinutes({ recording, transcript, chapters, profile }) {
+  assertMachineTranscript(transcript, "intelligence");
   const sections = {
     chapters: chapters.chapters.map((chapter) => ({
       title: chapter.title,
@@ -20,11 +21,18 @@ export async function generateMinutes({ recording, chapters, profile }) {
   return {
     recordingId: recording.recordingId,
     profile: profile.id,
-    summary: `Stub minutes for ${recording.title}.`,
+    summary: transcript.summary || `Stub minutes for ${recording.title}.`,
     sections,
     sourceArtifacts: {
-      transcriptPath: `state/runs/${recording.recordingId}/transcript.json`,
-      chaptersPath: `state/runs/${recording.recordingId}/chapters.json`,
+      transcriptContentRole: transcript.contentRole,
+      transcriptProviderKind: transcript.provider.kind,
+      chapterSourceContentRole: chapters.sourceTranscript?.contentRole || null,
     },
   };
+}
+
+function assertMachineTranscript(transcript, stage) {
+  if (transcript?.contentRole !== "machine_transcript") {
+    throw new Error(`${stage} requires transcript.contentRole=machine_transcript`);
+  }
 }

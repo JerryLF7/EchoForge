@@ -3,10 +3,24 @@
   "$id": "https://echoforge.local/schemas/chapters.schema.json",
   "title": "Chapter Timeline",
   "type": "object",
-  "required": ["recordingId", "chapters"],
+  "required": ["recordingId", "sourceTranscript", "chapters"],
   "properties": {
     "recordingId": {
       "type": "string"
+    },
+    "sourceTranscript": {
+      "type": "object",
+      "required": ["contentRole", "providerKind"],
+      "properties": {
+        "contentRole": {
+          "type": "string",
+          "enum": ["machine_transcript"]
+        },
+        "providerKind": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
     },
     "chapters": {
       "type": "array",

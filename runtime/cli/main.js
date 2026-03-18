@@ -10,10 +10,18 @@ import {
   normalizeFeishuItem,
 } from "../../adapters/sources/feishu_minutes/adapter.js";
 import { importChatAudio } from "../../pipeline/chat-import.js";
-import { rebuildFromRecording } from "../../pipeline/rebuild.js";
-import { runPipeline } from "../../pipeline/orchestrator.js";
+import { ingestLocalFile } from "../../pipeline/stages/ingest.js";
+import { rebuildRun } from "../../pipeline/rebuild.js";
+import {
+  runPipeline,
+  runPipelineFromRecording,
+} from "../../pipeline/orchestrator.js";
 import { recordingFromSourceItem } from "../../pipeline/source-ingest.js";
-import { listAudioProviders } from "../../pipeline/providers/provider-registry.js";
+import {
+  getAudioRuntime,
+  listAudioProviders,
+  resolveAudioProviderSelection,
+} from "../../pipeline/providers/provider-registry.js";
 import { loadProfile } from "./profile-loader.js";
 import {
   commandCatalog,
@@ -23,11 +31,16 @@ import {
 } from "./parser.js";
 import { assertSchemaFilesExist } from "./schema-check.js";
 import {
+  getRecording,
   loadRecordingIndex,
   upsertRecordings,
-} from "./recording-store.js";
-import { loadRunsIndex } from "./run-store.js";
-import { getRunDir, listRuns, readRunArtifact } from "./state-store.js";
+} from "../store/recordings.js";
+import {
+  findLatestRunForRecording,
+  getRunManifest,
+  listRunManifests,
+} from "../store/runs.js";
+import { readRunArtifact } from "../store/artifacts.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -46,9 +59,13 @@ async function main(argv) {
     return;
   }
 
-  const profile = loadProfile(repoRoot, parsed.options.profile || "general");
+  const profile = loadProfile(repoRoot, resolveProfileName(parsed));
 
   if (parsed.command === "plan") {
+    const providerSelection = resolveAudioProviderSelection({
+      profile,
+    });
+
     console.log(
       formatJson({
         command: parsed.command,
@@ -57,11 +74,11 @@ async function main(argv) {
         positionals: parsed.positionals,
         profile,
         audioUnderstanding: {
-          provider: parsed.options.provider || profile.audioUnderstanding.provider,
-          model: profile.audioUnderstanding.model,
-          capabilities: profile.audioUnderstanding.capabilities,
+          capabilities: providerSelection.requestedCapabilities || profile.audioUnderstanding.capabilities,
           prompt: profile.audioUnderstanding.prompt,
         },
+        runtime: providerSelection.provider,
+        capabilityWarnings: providerSelection.issues,
         next: [
           "resolve source input",
           "build normalized recording record",
@@ -81,11 +98,32 @@ async function main(argv) {
 
   assertSchemaFilesExist(repoRoot);
 
-  if (
-    (parsed.command === "ingest" || parsed.command === "process") &&
-    parsed.subcommand === "local"
-  ) {
+  if (parsed.command === "ingest" && parsed.subcommand === "local") {
     requireOption(parsed.options, "file");
+
+    const recording = await ingestLocalFile({
+      repoRoot,
+      input: {
+        file: parsed.options.file,
+        title: parsed.options.title,
+      },
+    });
+    upsertRecordings(repoRoot, [recording]);
+
+    console.log(
+      formatJson({
+        command: parsed.command,
+        subcommand: parsed.subcommand,
+        profile,
+        recording,
+      }),
+    );
+    return;
+  }
+
+  if (parsed.command === "process" && parsed.subcommand === "local") {
+    requireOption(parsed.options, "file");
+    requireOption(parsed.options, "audio-result");
 
     const result = await runPipeline({
       repoRoot,
@@ -94,8 +132,9 @@ async function main(argv) {
         title: parsed.options.title,
       },
       profile,
-      providerOverride: parsed.options.provider,
+      audioUnderstandingResult: parsed.options["audio-result"],
     });
+    upsertRecordings(repoRoot, [result.recording]);
 
     console.log(
       formatJson({
@@ -110,11 +149,11 @@ async function main(argv) {
   }
 
   if (parsed.command === "inspect" && parsed.subcommand === "runs") {
-    const index = loadRunsIndex(repoRoot);
+    const runs = listRunManifests(repoRoot);
     console.log(
       formatJson({
-        count: Object.keys(index.items).length,
-        runs: Object.values(index.items),
+        count: runs.length,
+        runs,
       }),
     );
     return;
@@ -150,17 +189,20 @@ async function main(argv) {
   }
 
   if (parsed.command === "inspect" && parsed.subcommand === "recording") {
-    const runId = parsed.positionals[0] || parsed.options.id;
-    if (!runId) {
-      fail("Missing run id. Use: inspect recording <runId>");
+    const recordingId = parsed.positionals[0] || parsed.options.id;
+    if (!recordingId) {
+      fail("Missing recording id. Use: inspect recording <recordingId>");
+    }
+
+    const recording = getRecording(repoRoot, recordingId);
+    if (!recording) {
+      fail(`Recording not found: ${recordingId}`);
     }
 
     console.log(
       formatJson({
-        recording: readRunArtifact(repoRoot, runId, "recording.json"),
-        transcript: readRunArtifact(repoRoot, runId, "transcript.json"),
-        chapters: readRunArtifact(repoRoot, runId, "chapters.json"),
-        minutes: readRunArtifact(repoRoot, runId, "minutes.json"),
+        recording,
+        latestRun: findLatestRunForRecording(repoRoot, recordingId),
       }),
     );
     return;
@@ -172,13 +214,15 @@ async function main(argv) {
   }
 
   if (parsed.command === "inspect" && parsed.subcommand === "providers") {
-    const activeProvider = parsed.options.provider || profile.audioUnderstanding.provider;
+    const providerSelection = resolveAudioProviderSelection({
+      profile,
+    });
 
     console.log(
       formatJson({
-        activeProvider,
-        configuredModel: profile.audioUnderstanding.model,
-        audioUnderstandingProviders: listAudioProviders(),
+        runtime: getAudioRuntime(),
+        capabilityWarnings: providerSelection.issues,
+        availableAudioRuntimes: listAudioProviders(),
         capabilities: profile.audioUnderstanding.capabilities,
       }),
     );
@@ -200,27 +244,66 @@ async function main(argv) {
     return;
   }
 
-  if (
-    (parsed.command === "process" || parsed.command === "rebuild") &&
-    parsed.subcommand === "recording"
-  ) {
+  if (parsed.command === "process" && parsed.subcommand === "recording") {
     const recordingId = parsed.positionals[0] || parsed.options.id;
     if (!recordingId) {
       fail("Missing recording id. Use: process recording <recordingId>");
     }
+    requireOption(parsed.options, "audio-result");
 
-    const result = await rebuildFromRecording({
+    const recording = getRecording(repoRoot, recordingId);
+    if (!recording) {
+      fail(`Recording not found: ${recordingId}`);
+    }
+
+    const result = await runPipelineFromRecording({
       repoRoot,
-      recording: readRunArtifact(repoRoot, recordingId, "recording.json"),
-      transcript: readRunArtifact(repoRoot, recordingId, "transcript.json"),
+      recording,
       profile,
+      audioUnderstandingResult: parsed.options["audio-result"],
     });
 
     console.log(
       formatJson({
         command: parsed.command,
         subcommand: parsed.subcommand,
-        recordingId,
+        recordingId: result.recording.recordingId,
+        runId: result.published.runId,
+        profile,
+        output: result.published,
+      }),
+    );
+    return;
+  }
+
+  if (parsed.command === "rebuild" && parsed.subcommand === "recording") {
+    fail("`rebuild recording` is ambiguous now. Use: rebuild run <runId>");
+  }
+
+  if (parsed.command === "rebuild" && parsed.subcommand === "run") {
+    const runId = parsed.positionals[0] || parsed.options.id;
+    if (!runId) {
+      fail("Missing run id. Use: rebuild run <runId>");
+    }
+
+    const manifest = getRunManifest(repoRoot, runId) || readRunArtifact(repoRoot, runId, "run.json");
+    const recording = readRunArtifact(repoRoot, runId, "recording.json");
+    const transcript = readRunArtifact(repoRoot, runId, "transcript.json");
+    const result = await rebuildRun({
+      repoRoot,
+      runId,
+      recording,
+      transcript,
+      profile,
+      startedAt: manifest.startedAt,
+    });
+
+    console.log(
+      formatJson({
+        command: parsed.command,
+        subcommand: parsed.subcommand,
+        runId,
+        recordingId: result.recording.recordingId,
         profile,
         output: result.published,
       }),
@@ -284,6 +367,24 @@ async function main(argv) {
   );
 }
 
+function resolveProfileName(parsed) {
+  if (parsed.options.profile) {
+    return parsed.options.profile;
+  }
+
+  if (parsed.command === "rebuild" && parsed.subcommand === "run") {
+    const runId = parsed.positionals[0] || parsed.options.id;
+    if (runId) {
+      const manifest = getRunManifest(repoRoot, runId);
+      if (manifest?.profile) {
+        return manifest.profile;
+      }
+    }
+  }
+
+  return "general";
+}
+
 function printHelp() {
   const help = [
     "EchoForge master CLI",
@@ -296,13 +397,15 @@ function printHelp() {
     "",
     "Examples:",
     "  echoforge ingest local --file ./demo.wav --profile general",
+    "  echoforge process local --file ./demo.wav --audio-result ./understanding.json --profile general",
     "  echoforge sync feishu --profile work_meeting",
-    "  echoforge process recording rec_001 --profile lecture",
+    "  echoforge process recording rec_001 --audio-result ./understanding.json --profile lecture",
+    "  echoforge rebuild run run_rec_001_abcd --profile lecture",
     "  echoforge plan --profile general",
     "",
     "Global options:",
     "  --profile <name>   Processing profile name",
-    "  --provider <id>    Audio understanding provider override",
+    "  --audio-result     Host-agent audio understanding result JSON",
     "  --help             Show this help",
   ].join("\n");
 

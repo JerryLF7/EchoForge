@@ -1,9 +1,14 @@
 export async function chapterizeTranscript({ transcript }) {
+  assertMachineTranscript(transcript, "chapterize");
   const first = transcript.utterances[0];
   const last = transcript.utterances[transcript.utterances.length - 1];
 
   return {
     recordingId: transcript.recordingId,
+    sourceTranscript: {
+      contentRole: transcript.contentRole,
+      providerKind: transcript.provider.kind,
+    },
     chapters: [
       {
         chapterId: "ch_001",
@@ -15,4 +20,10 @@ export async function chapterizeTranscript({ transcript }) {
       },
     ],
   };
+}
+
+function assertMachineTranscript(transcript, stage) {
+  if (transcript?.contentRole !== "machine_transcript") {
+    throw new Error(`${stage} requires transcript.contentRole=machine_transcript`);
+  }
 }
