@@ -1,0 +1,25 @@
+{
+  "recordingId": "rec_file-41-d281ac01-b9be-4e8a-abac-5b3d89c4e893_mmwvatgl",
+  "profile": "general",
+  "summary": "用户测试音频转写。",
+  "sections": {
+    "chapters": [
+      {
+        "title": "这次用这个文件试一下",
+        "summary": "这次用这个文件试一下。"
+      }
+    ],
+    "decisions": [],
+    "quotes": [],
+    "links": []
+  },
+  "sourceArtifacts": {
+    "transcriptContentRole": "machine_transcript",
+    "transcriptProviderKind": "host_agent_multimodal_audio_understanding",
+    "chapterSourceContentRole": "machine_transcript",
+    "transcriptPath": "state/runs/run_rec_file-41-d281ac01-b9be-4e8a-abac-5b3d89c4e893_mmwvatgl_mmwwv4k424a9/transcript.json",
+    "transcriptMarkdownPath": "state/runs/run_rec_file-41-d281ac01-b9be-4e8a-abac-5b3d89c4e893_mmwvatgl_mmwwv4k424a9/transcript.md",
+    "chaptersPath": "state/runs/run_rec_file-41-d281ac01-b9be-4e8a-abac-5b3d89c4e893_mmwvatgl_mmwwv4k424a9/chapters.json",
+    "transcriptMarkdownRole": "human_readable_transcript"
+  }
+}

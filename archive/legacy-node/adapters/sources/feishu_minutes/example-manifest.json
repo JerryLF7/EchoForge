@@ -1,0 +1,25 @@
+{
+  "fetchedAt": "2026-01-01T00:00:00.000Z",
+  "items": [
+    {
+      "objectToken": "minutes_demo_token_001",
+      "workspace": "demo-workspace",
+      "title": "Quarterly Planning Demo Recording",
+      "recordedAt": "2026-01-01T09:30:00.000Z",
+      "durationSeconds": 3600,
+      "speakerCount": 3,
+      "url": "https://demo-workspace.feishu.cn/minutes/minutes_demo_token_001",
+      "participants": [
+        {
+          "name": "Speaker A"
+        },
+        {
+          "name": "Speaker B"
+        },
+        {
+          "name": "Speaker C"
+        }
+      ]
+    }
+  ]
+}

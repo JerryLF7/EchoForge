@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://echoforge.local/schemas/run.schema.json",
+  "title": "EchoForge Run",
+  "type": "object",
+  "required": [
+    "runId",
+    "recordingId",
+    "profile",
+    "provider",
+    "startedAt",
+    "completedAt",
+    "status",
+    "artifacts"
+  ],
+  "properties": {
+    "runId": { "type": "string" },
+    "recordingId": { "type": "string" },
+    "profile": { "type": "string" },
+    "provider": {
+      "type": "object",
+      "required": ["id", "model"],
+      "properties": {
+        "id": { "type": "string" },
+        "model": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "startedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "completedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["completed"]
+    },
+    "artifacts": {
+      "type": "object",
+      "required": ["recording", "transcript", "transcriptMarkdown", "chapters", "minutes", "markdown"],
+      "properties": {
+        "recording": { "type": "string" },
+        "transcript": { "type": "string" },
+        "transcriptMarkdown": { "type": "string" },
+        "chapters": { "type": "string" },
+        "minutes": { "type": "string" },
+        "markdown": { "type": "string" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

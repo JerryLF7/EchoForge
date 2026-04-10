@@ -1,0 +1,20 @@
+{
+  "runId": "run_rec_1773490216_7b166148_mmvg5l214813",
+  "recordingId": "rec_1773490216_7b166148",
+  "profile": "lecture",
+  "provider": {
+    "id": "openclaw",
+    "model": "host-managed-multimodal-model"
+  },
+  "startedAt": "2026-03-18T02:53:27.386Z",
+  "completedAt": "2026-03-18T02:53:27.386Z",
+  "status": "completed",
+  "artifacts": {
+    "recording": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvg5l214813/recording.json",
+    "transcript": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvg5l214813/transcript.json",
+    "transcriptMarkdown": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvg5l214813/transcript.md",
+    "chapters": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvg5l214813/chapters.json",
+    "minutes": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvg5l214813/minutes.json",
+    "markdown": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvg5l214813/minutes.md"
+  }
+}

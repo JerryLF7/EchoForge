@@ -1,0 +1,329 @@
+{
+  "items": {
+    "rec_recording_32d6a3e3": {
+      "recordingId": "rec_recording_32d6a3e3",
+      "source": {
+        "kind": "feishu_minutes",
+        "itemId": "obcnfnmj83opq152547q82l8",
+        "workspace": "itc76dx5iv",
+        "url": "https://itc76dx5iv.feishu.cn/minutes/obcnfnmj83opq152547q82l8"
+      },
+      "title": "神经多样性人格特点分析",
+      "capturedAt": "2026-03-15T13:00:00.000Z",
+      "participants": [
+        {
+          "name": "Speaker A"
+        },
+        {
+          "name": "Speaker B"
+        }
+      ],
+      "audio": {
+        "path": "pending://download",
+        "format": "unknown",
+        "durationSeconds": 6660,
+        "checksum": "pending"
+      },
+      "ingest": {
+        "status": "discovered",
+        "ingestedAt": "2026-03-17T07:26:50.649Z",
+        "notes": [
+          "Source item normalized into EchoForge recording contract."
+        ]
+      },
+      "metadata": {
+        "durationSeconds": 6660,
+        "speakerCount": 2,
+        "raw": {
+          "objectToken": "obcnfnmj83opq152547q82l8",
+          "workspace": "itc76dx5iv",
+          "title": "神经多样性人格特点分析",
+          "recordedAt": "2026-03-15T13:00:00.000Z",
+          "durationSeconds": 6660,
+          "speakerCount": 2,
+          "url": "https://itc76dx5iv.feishu.cn/minutes/obcnfnmj83opq152547q82l8",
+          "participants": [
+            {
+              "name": "Speaker A"
+            },
+            {
+              "name": "Speaker B"
+            }
+          ]
+        }
+      }
+    },
+    "rec_1773490216_7b166148": {
+      "recordingId": "rec_1773490216_7b166148",
+      "source": {
+        "kind": "chat_attachment",
+        "itemId": "/home/jerry/Downloads/1773490216.ogg",
+        "workspace": null,
+        "url": null
+      },
+      "title": "1773490216",
+      "capturedAt": "2026-03-15T18:38:54.931Z",
+      "participants": [],
+      "audio": {
+        "path": "/home/jerry/Downloads/1773490216.ogg",
+        "format": "ogg",
+        "durationSeconds": 0,
+        "checksum": "pending"
+      },
+      "ingest": {
+        "status": "normalized",
+        "ingestedAt": "2026-03-17T07:26:50.732Z",
+        "notes": [
+          "Source item normalized into EchoForge recording contract."
+        ]
+      },
+      "metadata": {
+        "fileSizeBytes": 54268251,
+        "importedFrom": "chat_attachment"
+      }
+    },
+    "rec_readme_mmvgnpxn": {
+      "recordingId": "rec_readme_mmvgnpxn",
+      "source": {
+        "kind": "local_file",
+        "itemId": "/home/jerry/.openclaw/workspace/EchoForge/README.md",
+        "url": null
+      },
+      "title": "test",
+      "capturedAt": "2026-03-18T00:28:29.761Z",
+      "participants": [],
+      "audio": {
+        "path": "/home/jerry/.openclaw/workspace/EchoForge/README.md",
+        "format": "md",
+        "durationSeconds": 0,
+        "checksum": "32f429a01201b40e71dc35c5990ec57111fb355a11132b67fff0ad8e1bdcb858"
+      },
+      "ingest": {
+        "status": "normalized",
+        "ingestedAt": "2026-03-18T03:07:33.516Z",
+        "notes": [
+          "Local file registered by CLI ingest stage."
+        ]
+      },
+      "metadata": {
+        "fileSizeBytes": 3032
+      }
+    },
+    "rec_1773490216_mmujbq3x": {
+      "recordingId": "rec_1773490216_mmujbq3x",
+      "source": {
+        "kind": "local_file",
+        "itemId": "/home/jerry/Downloads/1773490216.ogg",
+        "url": null
+      },
+      "title": "1773490216",
+      "capturedAt": "2026-03-15T18:38:54.931Z",
+      "participants": [],
+      "audio": {
+        "path": "/home/jerry/Downloads/1773490216.ogg",
+        "format": "ogg",
+        "durationSeconds": 0,
+        "checksum": "2687886ca99e8961c5fcb2d5671340ea0158619a956107c2fdee6881b19837dc"
+      },
+      "ingest": {
+        "status": "normalized",
+        "ingestedAt": "2026-03-17T11:34:26.733Z",
+        "notes": [
+          "Local file registered by CLI ingest stage."
+        ]
+      },
+      "metadata": {
+        "fileSizeBytes": 54268251
+      }
+    },
+    "rec_1773490216_mmum87cb": {
+      "recordingId": "rec_1773490216_mmum87cb",
+      "source": {
+        "kind": "local_file",
+        "itemId": "/home/jerry/Downloads/1773490216.ogg",
+        "url": null
+      },
+      "title": "1773490216",
+      "capturedAt": "2026-03-15T18:38:54.931Z",
+      "participants": [],
+      "audio": {
+        "path": "/home/jerry/Downloads/1773490216.ogg",
+        "format": "ogg",
+        "durationSeconds": 0,
+        "checksum": "2687886ca99e8961c5fcb2d5671340ea0158619a956107c2fdee6881b19837dc"
+      },
+      "ingest": {
+        "status": "normalized",
+        "ingestedAt": "2026-03-17T12:55:41.287Z",
+        "notes": [
+          "Local file registered by CLI ingest stage."
+        ]
+      },
+      "metadata": {
+        "fileSizeBytes": 54268251
+      }
+    },
+    "rec_demo_mmu9v43a": {
+      "recordingId": "rec_demo_mmu9v43a",
+      "source": {
+        "kind": "local_file",
+        "itemId": "/home/jerry/.openclaw/workspace/EchoForge/tmp/demo.wav",
+        "url": null
+      },
+      "title": "demo",
+      "capturedAt": "2026-03-17T07:09:34.909Z",
+      "participants": [],
+      "audio": {
+        "path": "/home/jerry/.openclaw/workspace/EchoForge/tmp/demo.wav",
+        "format": "wav",
+        "durationSeconds": 0,
+        "checksum": "27e992171c07bc7961b16ff84f9773efcfc9ea99e2f41244f2f8de8089d9c8a7"
+      },
+      "ingest": {
+        "status": "normalized",
+        "ingestedAt": "2026-03-17T07:09:34.969Z",
+        "notes": [
+          "Local file registered by CLI ingest stage."
+        ]
+      },
+      "metadata": {
+        "fileSizeBytes": 17
+      }
+    },
+    "rec_1773490216_mmumpdy2": {
+      "recordingId": "rec_1773490216_mmumpdy2",
+      "source": {
+        "kind": "local_file",
+        "itemId": "/home/jerry/Downloads/1773490216.ogg",
+        "url": null
+      },
+      "title": "1773490216",
+      "capturedAt": "2026-03-15T18:38:54.931Z",
+      "participants": [],
+      "audio": {
+        "path": "/home/jerry/Downloads/1773490216.ogg",
+        "format": "ogg",
+        "durationSeconds": 0,
+        "checksum": "2687886ca99e8961c5fcb2d5671340ea0158619a956107c2fdee6881b19837dc"
+      },
+      "ingest": {
+        "status": "normalized",
+        "ingestedAt": "2026-03-17T13:09:03.015Z",
+        "notes": [
+          "Local file registered by CLI ingest stage."
+        ]
+      },
+      "metadata": {
+        "fileSizeBytes": 54268251
+      }
+    },
+    "rec_1773813843-69ca8714-7e28-4b1d-bb82-06b2bfbdd1c9_mmw1ye99": {
+      "recordingId": "rec_1773813843-69ca8714-7e28-4b1d-bb82-06b2bfbdd1c9_mmw1ye99",
+      "source": {
+        "kind": "local_file",
+        "itemId": "/home/jerry/.openclaw/media/inbound/1773813843---69ca8714-7e28-4b1d-bb82-06b2bfbdd1c9.ogg",
+        "url": null
+      },
+      "title": "1773813843---69ca8714-7e28-4b1d-bb82-06b2bfbdd1c9",
+      "capturedAt": "2026-03-18T13:03:19.784Z",
+      "participants": [],
+      "audio": {
+        "path": "/home/jerry/.openclaw/media/inbound/1773813843---69ca8714-7e28-4b1d-bb82-06b2bfbdd1c9.ogg",
+        "format": "ogg",
+        "durationSeconds": 0,
+        "checksum": "6f491ef7fc98d96e7521518df22f2ec7bd96be889a4932b313e13345cf33118b"
+      },
+      "ingest": {
+        "status": "normalized",
+        "ingestedAt": "2026-03-18T13:03:43.570Z",
+        "notes": [
+          "Local file registered by CLI ingest stage."
+        ]
+      },
+      "metadata": {
+        "fileSizeBytes": 14420221
+      }
+    },
+    "rec_1773813843-69ca8714-7e28-4b1d-bb82-06b2bfbdd1c9_mmwusq5y": {
+      "recordingId": "rec_1773813843-69ca8714-7e28-4b1d-bb82-06b2bfbdd1c9_mmwusq5y",
+      "source": {
+        "kind": "local_file",
+        "itemId": "/home/jerry/.openclaw/media/inbound/1773813843---69ca8714-7e28-4b1d-bb82-06b2bfbdd1c9.ogg",
+        "url": null
+      },
+      "title": "1773813843---69ca8714-7e28-4b1d-bb82-06b2bfbdd1c9",
+      "capturedAt": "2026-03-18T13:03:19.784Z",
+      "participants": [],
+      "audio": {
+        "path": "/home/jerry/.openclaw/media/inbound/1773813843---69ca8714-7e28-4b1d-bb82-06b2bfbdd1c9.ogg",
+        "format": "ogg",
+        "durationSeconds": 0,
+        "checksum": "6f491ef7fc98d96e7521518df22f2ec7bd96be889a4932b313e13345cf33118b"
+      },
+      "ingest": {
+        "status": "normalized",
+        "ingestedAt": "2026-03-19T02:31:07.953Z",
+        "notes": [
+          "Local file registered by CLI ingest stage."
+        ]
+      },
+      "metadata": {
+        "fileSizeBytes": 14420221
+      }
+    },
+    "rec_file-41-d281ac01-b9be-4e8a-abac-5b3d89c4e893_mmwvatgl": {
+      "recordingId": "rec_file-41-d281ac01-b9be-4e8a-abac-5b3d89c4e893_mmwvatgl",
+      "source": {
+        "kind": "local_file",
+        "itemId": "/home/jerry/.openclaw/media/inbound/file_41---d281ac01-b9be-4e8a-abac-5b3d89c4e893.ogg",
+        "url": null
+      },
+      "title": "file_41---d281ac01-b9be-4e8a-abac-5b3d89c4e893",
+      "capturedAt": "2026-03-19T02:44:05.401Z",
+      "participants": [],
+      "audio": {
+        "path": "/home/jerry/.openclaw/media/inbound/file_41---d281ac01-b9be-4e8a-abac-5b3d89c4e893.ogg",
+        "format": "ogg",
+        "durationSeconds": 0,
+        "checksum": "f40eb69f3122a871a71601eeaafa98585514a73c37b98d5010fdf3823d0d66df"
+      },
+      "ingest": {
+        "status": "normalized",
+        "ingestedAt": "2026-03-19T02:45:11.992Z",
+        "notes": [
+          "Local file registered by CLI ingest stage."
+        ]
+      },
+      "metadata": {
+        "fileSizeBytes": 6668301
+      }
+    },
+    "rec_input-audio_mmwwr4v8": {
+      "recordingId": "rec_input-audio_mmwwr4v8",
+      "source": {
+        "kind": "local_file",
+        "itemId": "/home/jerry/.openclaw/workspace/input_audio.oga",
+        "url": null
+      },
+      "title": "Transcribe Task",
+      "capturedAt": "2026-03-19T03:25:20.874Z",
+      "participants": [],
+      "audio": {
+        "path": "/home/jerry/.openclaw/workspace/input_audio.oga",
+        "format": "oga",
+        "durationSeconds": 0,
+        "checksum": "6f491ef7fc98d96e7521518df22f2ec7bd96be889a4932b313e13345cf33118b"
+      },
+      "ingest": {
+        "status": "normalized",
+        "ingestedAt": "2026-03-19T03:25:52.906Z",
+        "notes": [
+          "Local file registered by CLI ingest stage."
+        ]
+      },
+      "metadata": {
+        "fileSizeBytes": 14420221
+      }
+    }
+  }
+}

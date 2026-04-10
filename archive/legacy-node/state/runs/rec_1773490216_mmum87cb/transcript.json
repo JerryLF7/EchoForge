@@ -1,0 +1,51 @@
+{
+  "recordingId": "rec_1773490216_mmum87cb",
+  "contentRole": "machine_transcript",
+  "language": "auto",
+  "mode": "audio_understanding",
+  "summary": "Structured audio understanding for 1773490216.",
+  "utterances": [
+    {
+      "utteranceId": "utt_001",
+      "speaker": "speaker_1",
+      "start": 0,
+      "end": 12,
+      "text": "Opening segment for 1773490216.",
+      "notes": [
+        "Scenario-aware placeholder output.",
+        "Provider: stub"
+      ]
+    },
+    {
+      "utteranceId": "utt_002",
+      "speaker": "speaker_2",
+      "start": 12,
+      "end": 27,
+      "text": "Transcribe the meeting audio into a scenario-aware transcript. Preserve speaker turns, normalize company or project terminology when the context is clear, and prefer action-relevant phrasing over filler speech.",
+      "notes": [
+        "project names",
+        "team names",
+        "product terms",
+        "meeting decisions",
+        "owners and follow-ups"
+      ]
+    }
+  ],
+  "provider": {
+    "kind": "agent_multimodal",
+    "name": "stub",
+    "model": "unconfigured"
+  },
+  "understanding": {
+    "promptProfile": "work_meeting",
+    "scenarioPrompt": "Transcribe the meeting audio into a scenario-aware transcript. Preserve speaker turns, normalize company or project terminology when the context is clear, and prefer action-relevant phrasing over filler speech.",
+    "terminologyHints": [
+      "project names",
+      "team names",
+      "product terms",
+      "meeting decisions",
+      "owners and follow-ups"
+    ],
+    "speakerInference": "model_inferred"
+  }
+}

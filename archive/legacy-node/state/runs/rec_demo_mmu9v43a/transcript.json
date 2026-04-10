@@ -1,0 +1,45 @@
+{
+  "recordingId": "rec_demo_mmu9v43a",
+  "contentRole": "machine_transcript",
+  "language": "auto",
+  "mode": "audio_understanding",
+  "summary": "Placeholder transcript for demo. Replace this stub with a real ASR backend.",
+  "utterances": [
+    {
+      "utteranceId": "utt_001",
+      "speaker": "speaker_1",
+      "start": 0,
+      "end": 12,
+      "text": "Placeholder transcript for demo.",
+      "notes": [
+        "legacy_confidence:0.25"
+      ]
+    },
+    {
+      "utteranceId": "utt_002",
+      "speaker": "speaker_2",
+      "start": 12,
+      "end": 27,
+      "text": "Replace this stub with a real ASR backend.",
+      "notes": [
+        "legacy_confidence:0.2"
+      ]
+    }
+  ],
+  "provider": {
+    "kind": "legacy_audio_understanding",
+    "name": "stub",
+    "model": "none"
+  },
+  "understanding": {
+    "promptProfile": "lecture",
+    "scenarioPrompt": "Transcribe the talk into a knowledge-friendly transcript. Preserve technical terms, clarify topic shifts, and rewrite obvious misrecognitions when the intended concept is strongly implied by context.",
+    "terminologyHints": [
+      "technical terms",
+      "named concepts",
+      "book or paper titles",
+      "quoted phrases"
+    ],
+    "speakerInference": "model_inferred"
+  }
+}

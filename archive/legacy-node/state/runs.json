@@ -1,0 +1,404 @@
+{
+  "items": {
+    "run_rec_1773490216_mmumpdy2": {
+      "runId": "run_rec_1773490216_mmumpdy2",
+      "recordingId": "rec_1773490216_mmumpdy2",
+      "profile": "work_meeting",
+      "provider": {
+        "id": "stub",
+        "model": "unconfigured"
+      },
+      "startedAt": "2026-03-17T13:09:03.016Z",
+      "completedAt": "2026-03-18T08:01:15.963Z",
+      "status": "completed",
+      "artifacts": {
+        "recording": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_mmumpdy2/recording.json",
+        "transcript": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_mmumpdy2/transcript.json",
+        "transcriptMarkdown": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_mmumpdy2/transcript.md",
+        "chapters": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_mmumpdy2/chapters.json",
+        "minutes": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_mmumpdy2/minutes.json",
+        "markdown": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_mmumpdy2/minutes.md"
+      }
+    },
+    "run_rec_1773490216_7b166148_mmunvf9g214c": {
+      "runId": "run_rec_1773490216_7b166148_mmunvf9g214c",
+      "recordingId": "rec_1773490216_7b166148",
+      "profile": "work_meeting",
+      "provider": {
+        "id": "stub",
+        "model": "unconfigured"
+      },
+      "startedAt": "2026-03-17T13:41:44.068Z",
+      "completedAt": "2026-03-18T08:01:15.948Z",
+      "status": "completed",
+      "artifacts": {
+        "recording": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmunvf9g214c/recording.json",
+        "transcript": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmunvf9g214c/transcript.json",
+        "transcriptMarkdown": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmunvf9g214c/transcript.md",
+        "chapters": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmunvf9g214c/chapters.json",
+        "minutes": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmunvf9g214c/minutes.json",
+        "markdown": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmunvf9g214c/minutes.md"
+      }
+    },
+    "run_rec_1773490216_7b166148_mmur9kwx99b1": {
+      "runId": "run_rec_1773490216_7b166148_mmur9kwx99b1",
+      "recordingId": "rec_1773490216_7b166148",
+      "profile": "work_meeting",
+      "provider": {
+        "id": "openclaw",
+        "model": "host-managed-multimodal-model"
+      },
+      "startedAt": "2026-03-17T15:16:43.426Z",
+      "completedAt": "2026-03-18T08:01:15.952Z",
+      "status": "completed",
+      "artifacts": {
+        "recording": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmur9kwx99b1/recording.json",
+        "transcript": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmur9kwx99b1/transcript.json",
+        "transcriptMarkdown": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmur9kwx99b1/transcript.md",
+        "chapters": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmur9kwx99b1/chapters.json",
+        "minutes": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmur9kwx99b1/minutes.json",
+        "markdown": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmur9kwx99b1/minutes.md"
+      }
+    },
+    "run_rec_1773490216_7b166148_mmv865xc19bc": {
+      "runId": "run_rec_1773490216_7b166148_mmv865xc19bc",
+      "recordingId": "rec_1773490216_7b166148",
+      "profile": "work_meeting",
+      "provider": {
+        "id": "openclaw",
+        "model": "host-managed-multimodal-model"
+      },
+      "startedAt": "2026-03-17T23:09:57.504Z",
+      "completedAt": "2026-03-17T23:09:57.505Z",
+      "status": "completed",
+      "artifacts": {
+        "recording": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmv865xc19bc/recording.json",
+        "transcript": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmv865xc19bc/transcript.json",
+        "transcriptMarkdown": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmv865xc19bc/transcript.md",
+        "chapters": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmv865xc19bc/chapters.json",
+        "minutes": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmv865xc19bc/minutes.json",
+        "markdown": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmv865xc19bc/minutes.md"
+      }
+    },
+    "run_rec_1773490216_7b166148_mmvejqb889b5": {
+      "runId": "run_rec_1773490216_7b166148_mmvejqb889b5",
+      "recordingId": "rec_1773490216_7b166148",
+      "profile": "work_meeting",
+      "provider": {
+        "id": "openclaw",
+        "model": "host-managed-multimodal-model"
+      },
+      "startedAt": "2026-03-18T02:08:28.149Z",
+      "completedAt": "2026-03-18T02:08:28.149Z",
+      "status": "completed",
+      "artifacts": {
+        "recording": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvejqb889b5/recording.json",
+        "transcript": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvejqb889b5/transcript.json",
+        "transcriptMarkdown": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvejqb889b5/transcript.md",
+        "chapters": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvejqb889b5/chapters.json",
+        "minutes": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvejqb889b5/minutes.json",
+        "markdown": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvejqb889b5/minutes.md"
+      }
+    },
+    "run_rec_1773490216_7b166148_mmvejqbc8c18": {
+      "runId": "run_rec_1773490216_7b166148_mmvejqbc8c18",
+      "recordingId": "rec_1773490216_7b166148",
+      "profile": "lecture",
+      "provider": {
+        "id": "openclaw",
+        "model": "host-managed-multimodal-model"
+      },
+      "startedAt": "2026-03-18T02:08:28.152Z",
+      "completedAt": "2026-03-18T02:08:28.153Z",
+      "status": "completed",
+      "artifacts": {
+        "recording": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvejqbc8c18/recording.json",
+        "transcript": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvejqbc8c18/transcript.json",
+        "transcriptMarkdown": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvejqbc8c18/transcript.md",
+        "chapters": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvejqbc8c18/chapters.json",
+        "minutes": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvejqbc8c18/minutes.json",
+        "markdown": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvejqbc8c18/minutes.md"
+      }
+    },
+    "run_rec_1773490216_7b166148_mmvekeu3d4a7": {
+      "runId": "run_rec_1773490216_7b166148_mmvekeu3d4a7",
+      "recordingId": "rec_1773490216_7b166148",
+      "profile": "work_meeting",
+      "provider": {
+        "id": "openclaw",
+        "model": "host-managed-multimodal-model"
+      },
+      "startedAt": "2026-03-18T02:08:59.931Z",
+      "completedAt": "2026-03-18T02:08:59.932Z",
+      "status": "completed",
+      "artifacts": {
+        "recording": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvekeu3d4a7/recording.json",
+        "transcript": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvekeu3d4a7/transcript.json",
+        "transcriptMarkdown": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvekeu3d4a7/transcript.md",
+        "chapters": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvekeu3d4a7/chapters.json",
+        "minutes": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvekeu3d4a7/minutes.json",
+        "markdown": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvekeu3d4a7/minutes.md"
+      }
+    },
+    "run_rec_1773490216_7b166148_mmvfxku6dc71": {
+      "runId": "run_rec_1773490216_7b166148_mmvfxku6dc71",
+      "recordingId": "rec_1773490216_7b166148",
+      "profile": "work_meeting",
+      "provider": {
+        "id": "openclaw",
+        "model": "host-managed-multimodal-model"
+      },
+      "startedAt": "2026-03-18T02:47:13.854Z",
+      "completedAt": "2026-03-18T02:47:13.855Z",
+      "status": "completed",
+      "artifacts": {
+        "recording": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvfxku6dc71/recording.json",
+        "transcript": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvfxku6dc71/transcript.json",
+        "transcriptMarkdown": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvfxku6dc71/transcript.md",
+        "chapters": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvfxku6dc71/chapters.json",
+        "minutes": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvfxku6dc71/minutes.json",
+        "markdown": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvfxku6dc71/minutes.md"
+      }
+    },
+    "run_rec_1773490216_7b166148_mmvg4vre6303": {
+      "runId": "run_rec_1773490216_7b166148_mmvg4vre6303",
+      "recordingId": "rec_1773490216_7b166148",
+      "profile": "work_meeting",
+      "provider": {
+        "id": "openclaw",
+        "model": "host-managed-multimodal-model"
+      },
+      "startedAt": "2026-03-18T02:52:54.602Z",
+      "completedAt": "2026-03-18T02:52:54.602Z",
+      "status": "completed",
+      "artifacts": {
+        "recording": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvg4vre6303/recording.json",
+        "transcript": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvg4vre6303/transcript.json",
+        "transcriptMarkdown": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvg4vre6303/transcript.md",
+        "chapters": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvg4vre6303/chapters.json",
+        "minutes": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvg4vre6303/minutes.json",
+        "markdown": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvg4vre6303/minutes.md"
+      }
+    },
+    "run_rec_1773490216_7b166148_mmvg4vsyc805": {
+      "runId": "run_rec_1773490216_7b166148_mmvg4vsyc805",
+      "recordingId": "rec_1773490216_7b166148",
+      "profile": "lecture",
+      "provider": {
+        "id": "openclaw",
+        "model": "host-managed-multimodal-model"
+      },
+      "startedAt": "2026-03-18T02:52:54.658Z",
+      "completedAt": "2026-03-18T02:52:54.659Z",
+      "status": "completed",
+      "artifacts": {
+        "recording": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvg4vsyc805/recording.json",
+        "transcript": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvg4vsyc805/transcript.json",
+        "transcriptMarkdown": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvg4vsyc805/transcript.md",
+        "chapters": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvg4vsyc805/chapters.json",
+        "minutes": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvg4vsyc805/minutes.json",
+        "markdown": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvg4vsyc805/minutes.md"
+      }
+    },
+    "run_rec_1773490216_7b166148_mmvg5kz788b4": {
+      "runId": "run_rec_1773490216_7b166148_mmvg5kz788b4",
+      "recordingId": "rec_1773490216_7b166148",
+      "profile": "work_meeting",
+      "provider": {
+        "id": "openclaw",
+        "model": "host-managed-multimodal-model"
+      },
+      "startedAt": "2026-03-18T02:53:27.283Z",
+      "completedAt": "2026-03-18T02:53:27.283Z",
+      "status": "completed",
+      "artifacts": {
+        "recording": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvg5kz788b4/recording.json",
+        "transcript": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvg5kz788b4/transcript.json",
+        "transcriptMarkdown": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvg5kz788b4/transcript.md",
+        "chapters": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvg5kz788b4/chapters.json",
+        "minutes": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvg5kz788b4/minutes.json",
+        "markdown": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvg5kz788b4/minutes.md"
+      }
+    },
+    "run_rec_1773490216_7b166148_mmvg5l214813": {
+      "runId": "run_rec_1773490216_7b166148_mmvg5l214813",
+      "recordingId": "rec_1773490216_7b166148",
+      "profile": "lecture",
+      "provider": {
+        "id": "openclaw",
+        "model": "host-managed-multimodal-model"
+      },
+      "startedAt": "2026-03-18T02:53:27.386Z",
+      "completedAt": "2026-03-18T02:53:27.386Z",
+      "status": "completed",
+      "artifacts": {
+        "recording": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvg5l214813/recording.json",
+        "transcript": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvg5l214813/transcript.json",
+        "transcriptMarkdown": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvg5l214813/transcript.md",
+        "chapters": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvg5l214813/chapters.json",
+        "minutes": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvg5l214813/minutes.json",
+        "markdown": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvg5l214813/minutes.md"
+      }
+    },
+    "run_rec_1773490216_7b166148_mmvl34js4b34": {
+      "runId": "run_rec_1773490216_7b166148_mmvl34js4b34",
+      "recordingId": "rec_1773490216_7b166148",
+      "profile": "work_meeting",
+      "provider": {
+        "id": "openclaw",
+        "model": "host-managed-multimodal-model"
+      },
+      "startedAt": "2026-03-18T05:11:30.761Z",
+      "completedAt": "2026-03-18T05:11:30.761Z",
+      "status": "completed",
+      "artifacts": {
+        "recording": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvl34js4b34/recording.json",
+        "transcript": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvl34js4b34/transcript.json",
+        "transcriptMarkdown": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvl34js4b34/transcript.md",
+        "chapters": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvl34js4b34/chapters.json",
+        "minutes": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvl34js4b34/minutes.json",
+        "markdown": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvl34js4b34/minutes.md"
+      }
+    },
+    "run_rec_1773490216_7b166148_mmvl3rjta07a": {
+      "runId": "run_rec_1773490216_7b166148_mmvl3rjta07a",
+      "recordingId": "rec_1773490216_7b166148",
+      "profile": "lecture",
+      "provider": {
+        "id": "openclaw",
+        "model": "host-managed-multimodal-model"
+      },
+      "startedAt": "2026-03-18T05:12:00.570Z",
+      "completedAt": "2026-03-18T05:12:00.570Z",
+      "status": "completed",
+      "artifacts": {
+        "recording": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvl3rjta07a/recording.json",
+        "transcript": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvl3rjta07a/transcript.json",
+        "transcriptMarkdown": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvl3rjta07a/transcript.md",
+        "chapters": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvl3rjta07a/chapters.json",
+        "minutes": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvl3rjta07a/minutes.json",
+        "markdown": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvl3rjta07a/minutes.md"
+      }
+    },
+    "rec_1773490216_mmujbq3x": {
+      "runId": "rec_1773490216_mmujbq3x",
+      "recordingId": "rec_1773490216_mmujbq3x",
+      "profile": "work_meeting",
+      "provider": {
+        "id": "stub",
+        "model": "unconfigured"
+      },
+      "startedAt": "2026-03-17T11:34:26.733Z",
+      "completedAt": "2026-03-18T08:01:15.936Z",
+      "status": "completed",
+      "artifacts": {
+        "recording": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/rec_1773490216_mmujbq3x/recording.json",
+        "transcript": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/rec_1773490216_mmujbq3x/transcript.json",
+        "transcriptMarkdown": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/rec_1773490216_mmujbq3x/transcript.md",
+        "chapters": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/rec_1773490216_mmujbq3x/chapters.json",
+        "minutes": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/rec_1773490216_mmujbq3x/minutes.json",
+        "markdown": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/rec_1773490216_mmujbq3x/minutes.md"
+      }
+    },
+    "rec_1773490216_mmum87cb": {
+      "runId": "rec_1773490216_mmum87cb",
+      "recordingId": "rec_1773490216_mmum87cb",
+      "profile": "work_meeting",
+      "provider": {
+        "id": "stub",
+        "model": "unconfigured"
+      },
+      "startedAt": "2026-03-17T12:55:41.287Z",
+      "completedAt": "2026-03-18T08:01:15.940Z",
+      "status": "completed",
+      "artifacts": {
+        "recording": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/rec_1773490216_mmum87cb/recording.json",
+        "transcript": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/rec_1773490216_mmum87cb/transcript.json",
+        "transcriptMarkdown": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/rec_1773490216_mmum87cb/transcript.md",
+        "chapters": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/rec_1773490216_mmum87cb/chapters.json",
+        "minutes": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/rec_1773490216_mmum87cb/minutes.json",
+        "markdown": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/rec_1773490216_mmum87cb/minutes.md"
+      }
+    },
+    "rec_demo_mmu9v43a": {
+      "runId": "rec_demo_mmu9v43a",
+      "recordingId": "rec_demo_mmu9v43a",
+      "profile": "lecture",
+      "provider": {
+        "id": "stub",
+        "model": "none"
+      },
+      "startedAt": "2026-03-17T07:09:34.969Z",
+      "completedAt": "2026-03-18T08:01:15.943Z",
+      "status": "completed",
+      "artifacts": {
+        "recording": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/rec_demo_mmu9v43a/recording.json",
+        "transcript": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/rec_demo_mmu9v43a/transcript.json",
+        "transcriptMarkdown": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/rec_demo_mmu9v43a/transcript.md",
+        "chapters": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/rec_demo_mmu9v43a/chapters.json",
+        "minutes": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/rec_demo_mmu9v43a/minutes.json",
+        "markdown": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/rec_demo_mmu9v43a/minutes.md"
+      }
+    },
+    "run_rec_1773813843-69ca8714-7e28-4b1d-bb82-06b2bfbdd1c9_mmwusq5y_mmwv2gg3cf54": {
+      "runId": "run_rec_1773813843-69ca8714-7e28-4b1d-bb82-06b2bfbdd1c9_mmwusq5y_mmwv2gg3cf54",
+      "recordingId": "rec_1773813843-69ca8714-7e28-4b1d-bb82-06b2bfbdd1c9_mmwusq5y",
+      "profile": "general",
+      "provider": {
+        "id": "JerryNUC",
+        "model": "google/gemini-3-flash-preview"
+      },
+      "startedAt": "2026-03-19T02:38:41.859Z",
+      "completedAt": "2026-03-19T02:38:41.859Z",
+      "status": "completed",
+      "artifacts": {
+        "recording": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773813843-69ca8714-7e28-4b1d-bb82-06b2bfbdd1c9_mmwusq5y_mmwv2gg3cf54/recording.json",
+        "transcript": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773813843-69ca8714-7e28-4b1d-bb82-06b2bfbdd1c9_mmwusq5y_mmwv2gg3cf54/transcript.json",
+        "transcriptMarkdown": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773813843-69ca8714-7e28-4b1d-bb82-06b2bfbdd1c9_mmwusq5y_mmwv2gg3cf54/transcript.md",
+        "chapters": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773813843-69ca8714-7e28-4b1d-bb82-06b2bfbdd1c9_mmwusq5y_mmwv2gg3cf54/chapters.json",
+        "minutes": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773813843-69ca8714-7e28-4b1d-bb82-06b2bfbdd1c9_mmwusq5y_mmwv2gg3cf54/minutes.json",
+        "markdown": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773813843-69ca8714-7e28-4b1d-bb82-06b2bfbdd1c9_mmwusq5y_mmwv2gg3cf54/minutes.md"
+      }
+    },
+    "run_rec_file-41-d281ac01-b9be-4e8a-abac-5b3d89c4e893_mmwvatgl_mmwvaxn279d6": {
+      "runId": "run_rec_file-41-d281ac01-b9be-4e8a-abac-5b3d89c4e893_mmwvatgl_mmwvaxn279d6",
+      "recordingId": "rec_file-41-d281ac01-b9be-4e8a-abac-5b3d89c4e893_mmwvatgl",
+      "profile": "general",
+      "provider": {
+        "id": "JerryNUC",
+        "model": "google/gemini-3-flash-preview"
+      },
+      "startedAt": "2026-03-19T02:45:17.391Z",
+      "completedAt": "2026-03-19T02:45:17.391Z",
+      "status": "completed",
+      "artifacts": {
+        "recording": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_file-41-d281ac01-b9be-4e8a-abac-5b3d89c4e893_mmwvatgl_mmwvaxn279d6/recording.json",
+        "transcript": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_file-41-d281ac01-b9be-4e8a-abac-5b3d89c4e893_mmwvatgl_mmwvaxn279d6/transcript.json",
+        "transcriptMarkdown": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_file-41-d281ac01-b9be-4e8a-abac-5b3d89c4e893_mmwvatgl_mmwvaxn279d6/transcript.md",
+        "chapters": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_file-41-d281ac01-b9be-4e8a-abac-5b3d89c4e893_mmwvatgl_mmwvaxn279d6/chapters.json",
+        "minutes": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_file-41-d281ac01-b9be-4e8a-abac-5b3d89c4e893_mmwvatgl_mmwvaxn279d6/minutes.json",
+        "markdown": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_file-41-d281ac01-b9be-4e8a-abac-5b3d89c4e893_mmwvatgl_mmwvaxn279d6/minutes.md"
+      }
+    },
+    "run_rec_file-41-d281ac01-b9be-4e8a-abac-5b3d89c4e893_mmwvatgl_mmwwv4k424a9": {
+      "runId": "run_rec_file-41-d281ac01-b9be-4e8a-abac-5b3d89c4e893_mmwvatgl_mmwwv4k424a9",
+      "recordingId": "rec_file-41-d281ac01-b9be-4e8a-abac-5b3d89c4e893_mmwvatgl",
+      "profile": "general",
+      "provider": {
+        "id": "host-agent",
+        "model": "unspecified-by-host-agent"
+      },
+      "startedAt": "2026-03-19T03:28:59.092Z",
+      "completedAt": "2026-03-19T03:28:59.092Z",
+      "status": "completed",
+      "artifacts": {
+        "recording": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_file-41-d281ac01-b9be-4e8a-abac-5b3d89c4e893_mmwvatgl_mmwwv4k424a9/recording.json",
+        "transcript": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_file-41-d281ac01-b9be-4e8a-abac-5b3d89c4e893_mmwvatgl_mmwwv4k424a9/transcript.json",
+        "transcriptMarkdown": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_file-41-d281ac01-b9be-4e8a-abac-5b3d89c4e893_mmwvatgl_mmwwv4k424a9/transcript.md",
+        "chapters": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_file-41-d281ac01-b9be-4e8a-abac-5b3d89c4e893_mmwvatgl_mmwwv4k424a9/chapters.json",
+        "minutes": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_file-41-d281ac01-b9be-4e8a-abac-5b3d89c4e893_mmwvatgl_mmwwv4k424a9/minutes.json",
+        "markdown": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_file-41-d281ac01-b9be-4e8a-abac-5b3d89c4e893_mmwvatgl_mmwwv4k424a9/minutes.md"
+      }
+    }
+  }
+}

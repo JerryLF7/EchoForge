@@ -1,0 +1,20 @@
+{
+  "runId": "run_rec_1773490216_7b166148_mmvg5kz788b4",
+  "recordingId": "rec_1773490216_7b166148",
+  "profile": "work_meeting",
+  "provider": {
+    "id": "openclaw",
+    "model": "host-managed-multimodal-model"
+  },
+  "startedAt": "2026-03-18T02:53:27.283Z",
+  "completedAt": "2026-03-18T02:53:27.283Z",
+  "status": "completed",
+  "artifacts": {
+    "recording": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvg5kz788b4/recording.json",
+    "transcript": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvg5kz788b4/transcript.json",
+    "transcriptMarkdown": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvg5kz788b4/transcript.md",
+    "chapters": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvg5kz788b4/chapters.json",
+    "minutes": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvg5kz788b4/minutes.json",
+    "markdown": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773490216_7b166148_mmvg5kz788b4/minutes.md"
+  }
+}

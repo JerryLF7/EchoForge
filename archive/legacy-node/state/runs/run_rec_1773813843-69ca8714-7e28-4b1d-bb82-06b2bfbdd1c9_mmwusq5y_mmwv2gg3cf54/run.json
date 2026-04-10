@@ -1,0 +1,20 @@
+{
+  "runId": "run_rec_1773813843-69ca8714-7e28-4b1d-bb82-06b2bfbdd1c9_mmwusq5y_mmwv2gg3cf54",
+  "recordingId": "rec_1773813843-69ca8714-7e28-4b1d-bb82-06b2bfbdd1c9_mmwusq5y",
+  "profile": "general",
+  "provider": {
+    "id": "JerryNUC",
+    "model": "google/gemini-3-flash-preview"
+  },
+  "startedAt": "2026-03-19T02:38:41.859Z",
+  "completedAt": "2026-03-19T02:38:41.859Z",
+  "status": "completed",
+  "artifacts": {
+    "recording": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773813843-69ca8714-7e28-4b1d-bb82-06b2bfbdd1c9_mmwusq5y_mmwv2gg3cf54/recording.json",
+    "transcript": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773813843-69ca8714-7e28-4b1d-bb82-06b2bfbdd1c9_mmwusq5y_mmwv2gg3cf54/transcript.json",
+    "transcriptMarkdown": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773813843-69ca8714-7e28-4b1d-bb82-06b2bfbdd1c9_mmwusq5y_mmwv2gg3cf54/transcript.md",
+    "chapters": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773813843-69ca8714-7e28-4b1d-bb82-06b2bfbdd1c9_mmwusq5y_mmwv2gg3cf54/chapters.json",
+    "minutes": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773813843-69ca8714-7e28-4b1d-bb82-06b2bfbdd1c9_mmwusq5y_mmwv2gg3cf54/minutes.json",
+    "markdown": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_1773813843-69ca8714-7e28-4b1d-bb82-06b2bfbdd1c9_mmwusq5y_mmwv2gg3cf54/minutes.md"
+  }
+}

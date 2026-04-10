@@ -1,0 +1,26 @@
+{
+  "recordingId": "rec_1773490216_7b166148",
+  "profile": "work_meeting",
+  "summary": "讨论了项目优先级和后续行动。",
+  "sections": {
+    "chapters": [
+      {
+        "title": "Opening segment",
+        "summary": "我们先把这周最关键的需求收敛下来，然后安排下个迭代。 可以，我来整理一下优先级和负责人，今天晚上同步到文档里。"
+      }
+    ],
+    "decisions": [],
+    "quotes": [],
+    "links": [],
+    "todos": []
+  },
+  "sourceArtifacts": {
+    "transcriptContentRole": "machine_transcript",
+    "transcriptProviderKind": "host_agent_multimodal_audio_understanding",
+    "chapterSourceContentRole": "machine_transcript",
+    "transcriptPath": "state/runs/run_rec_1773490216_7b166148_mmv865xc19bc/transcript.json",
+    "transcriptMarkdownPath": "state/runs/run_rec_1773490216_7b166148_mmv865xc19bc/transcript.md",
+    "chaptersPath": "state/runs/run_rec_1773490216_7b166148_mmv865xc19bc/chapters.json",
+    "transcriptMarkdownRole": "human_readable_transcript"
+  }
+}

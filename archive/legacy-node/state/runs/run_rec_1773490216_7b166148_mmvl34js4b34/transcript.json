@@ -1,0 +1,44 @@
+{
+  "recordingId": "rec_1773490216_7b166148",
+  "contentRole": "machine_transcript",
+  "language": "zh",
+  "mode": "audio_understanding",
+  "summary": "讨论了项目优先级和后续行动。",
+  "utterances": [
+    {
+      "utteranceId": "utt_001",
+      "speaker": "Speaker 1",
+      "start": 0,
+      "end": 18,
+      "text": "我们先把这周最关键的需求收敛下来，然后安排下个迭代。",
+      "notes": [
+        "high confidence"
+      ]
+    },
+    {
+      "utteranceId": "utt_002",
+      "speaker": "Speaker 2",
+      "start": 18,
+      "end": 36,
+      "text": "可以，我来整理一下优先级和负责人，今天晚上同步到文档里。",
+      "notes": []
+    }
+  ],
+  "provider": {
+    "kind": "host_agent_multimodal_audio_understanding",
+    "name": "openclaw",
+    "model": "host-managed-multimodal-model"
+  },
+  "understanding": {
+    "promptProfile": "work_meeting",
+    "scenarioPrompt": "Transcribe the meeting audio into a scenario-aware transcript. Preserve speaker turns, normalize company or project terminology when the context is clear, and prefer action-relevant phrasing over filler speech.",
+    "terminologyHints": [
+      "project names",
+      "team names",
+      "product terms",
+      "meeting decisions",
+      "owners and follow-ups"
+    ],
+    "speakerInference": "model_inferred"
+  }
+}

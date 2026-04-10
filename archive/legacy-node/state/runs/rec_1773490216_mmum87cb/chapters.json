@@ -1,0 +1,23 @@
+{
+  "recordingId": "rec_1773490216_mmum87cb",
+  "sourceTranscript": {
+    "contentRole": "machine_transcript",
+    "providerKind": "agent_multimodal"
+  },
+  "chapters": [
+    {
+      "chapterId": "ch_001",
+      "title": "Opening segment for 1773...",
+      "start": 0,
+      "end": 27,
+      "summary": "Opening segment for 1773490216. Transcribe the meeting audio into a scenario-aware transcript. Preserve speaker turns, normalize company or project terminology when the context is clear, and prefer action-relevant phrasing over filler speech.",
+      "keywords": [
+        "the",
+        "action-relevant",
+        "and",
+        "audio",
+        "clear"
+      ]
+    }
+  ]
+}

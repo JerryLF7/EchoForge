@@ -1,0 +1,30 @@
+{
+  "recordingId": "rec_file-41-d281ac01-b9be-4e8a-abac-5b3d89c4e893_mmwvatgl",
+  "contentRole": "machine_transcript",
+  "language": "zh",
+  "mode": "audio_understanding",
+  "summary": "用户对 EchoForge 进行第二次音频调用测试，内容涉及对功能的确认和下一步动作的简短指令。",
+  "utterances": [
+    {
+      "utteranceId": "utt_001",
+      "speaker": "Jerry",
+      "start": 0,
+      "end": 5,
+      "text": "这次用这个文件试一下。",
+      "notes": [
+        "第二次测试音频"
+      ]
+    }
+  ],
+  "provider": {
+    "kind": "host_agent_multimodal_audio_understanding",
+    "name": "JerryNUC",
+    "model": "google/gemini-3-flash-preview"
+  },
+  "understanding": {
+    "promptProfile": "general",
+    "scenarioPrompt": "Transcribe and lightly normalize the audio into a clean, readable conversation transcript. Preserve meaning, infer speaker turns when possible, and correct obvious recognition errors without inventing facts.",
+    "terminologyHints": [],
+    "speakerInference": "model_inferred"
+  }
+}

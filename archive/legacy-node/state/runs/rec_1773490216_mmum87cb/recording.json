@@ -1,0 +1,27 @@
+{
+  "recordingId": "rec_1773490216_mmum87cb",
+  "source": {
+    "kind": "local_file",
+    "itemId": "/home/jerry/Downloads/1773490216.ogg",
+    "url": null
+  },
+  "title": "1773490216",
+  "capturedAt": "2026-03-15T18:38:54.931Z",
+  "participants": [],
+  "audio": {
+    "path": "/home/jerry/Downloads/1773490216.ogg",
+    "format": "ogg",
+    "durationSeconds": 0,
+    "checksum": "2687886ca99e8961c5fcb2d5671340ea0158619a956107c2fdee6881b19837dc"
+  },
+  "ingest": {
+    "status": "normalized",
+    "ingestedAt": "2026-03-17T12:55:41.287Z",
+    "notes": [
+      "Local file registered by CLI ingest stage."
+    ]
+  },
+  "metadata": {
+    "fileSizeBytes": 54268251
+  }
+}

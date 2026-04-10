@@ -1,0 +1,63 @@
+# {{ title }}
+
+> **来源**：{{ source_label }} | {{ created_at }}
+
+## 章节速览
+{% if chapters %}
+{% for chapter in chapters %}
+- [{{ chapter.start_label }} - {{ chapter.end_label }}] **{{ chapter.title }}**
+  {{ chapter.summary }}
+{% endfor %}
+{% else %}
+_暂无章节信息。_
+{% endif %}
+
+## 摘要
+{% if paragraph_summary %}
+{{ paragraph_summary }}
+{% else %}
+_暂无摘要。_
+{% endif %}
+
+## 发言总结
+{% if speakers %}
+{% for speaker in speakers %}
+### {{ speaker.name }}
+
+{{ speaker.summary }}
+{% endfor %}
+{% else %}
+_暂无发言总结。_
+{% endif %}
+
+## 问答
+{% if qa_pairs %}
+{% for qa in qa_pairs %}
+**Q: {{ qa.Question }}**
+
+{{ qa.Answer }}
+
+{% endfor %}
+{% else %}
+_暂无问答。_
+{% endif %}
+
+## 待办
+{% if actions %}
+{% for action in actions %}
+- [ ] {{ action.Action }}{% if action.DueTime %}（截止 {{ action.DueTime }}）{% endif %}
+{% endfor %}
+{% else %}
+_暂无待办。_
+{% endif %}
+
+## 重点内容
+{% if key_information %}
+{% for info in key_information %}
+- [{{ info.Category or '重点' }}] {{ info.Content }}
+{% endfor %}
+{% else %}
+_暂无重点内容。_
+{% endif %}
+
+_由 EchoForge 自动生成 | {{ generated_at }}_

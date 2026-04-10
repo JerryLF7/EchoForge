@@ -1,0 +1,23 @@
+{
+  "recordingId": "rec_1773490216_7b166148",
+  "sourceTranscript": {
+    "contentRole": "machine_transcript",
+    "providerKind": "host_agent_multimodal_audio_understanding"
+  },
+  "chapters": [
+    {
+      "chapterId": "ch_001",
+      "title": "我们先把这周最关键的需求收敛下来，然后安排下个迭...",
+      "start": 0,
+      "end": 36,
+      "summary": "我们先把这周最关键的需求收敛下来，然后安排下个迭代。 可以，我来整理一下优先级和负责人，今天晚上同步到文档里。",
+      "keywords": [
+        "今天晚上同步到文",
+        "可以",
+        "我们先把这周最关",
+        "我来整理一下优先",
+        "档里"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "recordingId": "rec_1773490216_mmum87cb",
+  "profile": "work_meeting",
+  "summary": "Structured audio understanding for 1773490216.",
+  "sections": {
+    "chapters": [
+      {
+        "title": "Opening segment for 1773...",
+        "summary": "Opening segment for 1773490216. Transcribe the meeting audio into a scenario-aware transcript. Preserve speaker turns, normalize company or project terminology when the context is clear, and prefer action-relevant phrasing over filler speech."
+      }
+    ],
+    "decisions": [],
+    "quotes": [
+      {
+        "text": "Opening segment for 1773490216.",
+        "speaker": "speaker_1",
+        "timestamp": 0
+      },
+      {
+        "text": "Transcribe the meeting audio into a scenario-aware transcript. Preserve speaker turns, normalize company or project terminology when the context is clear, and prefer action-relevant phrasing over filler speech.",
+        "speaker": "speaker_2",
+        "timestamp": 12
+      }
+    ],
+    "links": [],
+    "todos": []
+  },
+  "sourceArtifacts": {
+    "transcriptContentRole": "machine_transcript",
+    "transcriptProviderKind": "agent_multimodal",
+    "chapterSourceContentRole": "machine_transcript",
+    "transcriptPath": "state/runs/rec_1773490216_mmum87cb/transcript.json",
+    "transcriptMarkdownPath": "state/runs/rec_1773490216_mmum87cb/transcript.md",
+    "chaptersPath": "state/runs/rec_1773490216_mmum87cb/chapters.json",
+    "transcriptMarkdownRole": "human_readable_transcript"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "runId": "run_rec_file-41-d281ac01-b9be-4e8a-abac-5b3d89c4e893_mmwvatgl_mmwwv4k424a9",
+  "recordingId": "rec_file-41-d281ac01-b9be-4e8a-abac-5b3d89c4e893_mmwvatgl",
+  "profile": "general",
+  "provider": {
+    "id": "host-agent",
+    "model": "unspecified-by-host-agent"
+  },
+  "startedAt": "2026-03-19T03:28:59.092Z",
+  "completedAt": "2026-03-19T03:28:59.092Z",
+  "status": "completed",
+  "artifacts": {
+    "recording": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_file-41-d281ac01-b9be-4e8a-abac-5b3d89c4e893_mmwvatgl_mmwwv4k424a9/recording.json",
+    "transcript": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_file-41-d281ac01-b9be-4e8a-abac-5b3d89c4e893_mmwvatgl_mmwwv4k424a9/transcript.json",
+    "transcriptMarkdown": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_file-41-d281ac01-b9be-4e8a-abac-5b3d89c4e893_mmwvatgl_mmwwv4k424a9/transcript.md",
+    "chapters": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_file-41-d281ac01-b9be-4e8a-abac-5b3d89c4e893_mmwvatgl_mmwwv4k424a9/chapters.json",
+    "minutes": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_file-41-d281ac01-b9be-4e8a-abac-5b3d89c4e893_mmwvatgl_mmwwv4k424a9/minutes.json",
+    "markdown": "/home/jerry/.openclaw/workspace/EchoForge/state/runs/run_rec_file-41-d281ac01-b9be-4e8a-abac-5b3d89c4e893_mmwvatgl_mmwwv4k424a9/minutes.md"
+  }
+}

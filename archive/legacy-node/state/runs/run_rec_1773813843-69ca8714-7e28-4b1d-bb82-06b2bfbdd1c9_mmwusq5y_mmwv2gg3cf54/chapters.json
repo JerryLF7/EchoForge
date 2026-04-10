@@ -1,0 +1,20 @@
+{
+  "recordingId": "rec_1773813843-69ca8714-7e28-4b1d-bb82-06b2bfbdd1c9_mmwusq5y",
+  "sourceTranscript": {
+    "contentRole": "machine_transcript",
+    "providerKind": "host_agent_multimodal_audio_understanding"
+  },
+  "chapters": [
+    {
+      "chapterId": "ch_001",
+      "title": "测试一下调用吧，用这个音频文件",
+      "start": 0,
+      "end": 5,
+      "summary": "测试一下调用吧，用这个音频文件。",
+      "keywords": [
+        "测试一下调用吧",
+        "用这个音频文件"
+      ]
+    }
+  ]
+}
