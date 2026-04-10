@@ -1,135 +1,78 @@
 # EchoForge
 
-EchoForge is an agent-native audio intelligence pipeline.
+EchoForge is a Python CLI that turns audio into structured local knowledge artifacts.
 
-It is designed to turn raw audio into structured, reusable knowledge artifacts such as:
+The current pipeline targets three steps:
 
-- machine transcripts for downstream intelligence
-- human-readable transcripts for Obsidian
-- chaptered timelines
-- AI minutes and summaries
-- Obsidian-ready markdown outputs
+1. fetch or stage audio from Feishu Minutes or a local file
+2. submit the audio to Alibaba Cloud Tingwu for transcription and meeting understanding
+3. render the results into Obsidian Markdown notes
 
-## Project Positioning
+## Status
 
-EchoForge is the main project.
+This repository has been refactored away from the legacy Node.js pipeline.
 
-It is not limited to Feishu Minutes. Feishu support is only one source adapter among others.
+The new Python code lives under `src/echoforge/`, while the old implementation has been moved to `archive/legacy-node/`.
 
-The project is designed to be:
+One important integration constraint comes from the current Tingwu documentation:
 
-- agent-first
-- CLI-debuggable
-- modular
-- prompt-configurable
-- portable across machines
+- as of 2026-03-23, offline transcription tasks require `Input.FileUrl`
+- local file paths are staged into `outputs/`, but Tingwu still needs an externally reachable HTTP or HTTPS URL
 
-The core assumption is:
+That means `process-file` is implemented, but you must provide `--media-url` unless your source already exposes a downloadable URL.
 
-- EchoForge is invoked by a host agent such as OpenClaw
-- EchoForge does not own model credentials
-- EchoForge does not choose a model directly
-- the host agent performs multimodal audio understanding and returns a structured result
+## Installation
 
-## Current Direction
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -e ".[dev]"
+```
 
-The first end-to-end source flow is:
+## Configuration
 
-- Feishu Minutes audio discovery
-- raw audio download
-- multimodal audio understanding with scenario prompts
-- intelligent minutes generation
-- Obsidian publishing
+Copy `.env.example` to `.env` and fill in at least:
 
-## Audio Understanding
+```bash
+TINGWU_ACCESS_KEY_ID=...
+TINGWU_ACCESS_KEY_SECRET=...
+TINGWU_APP_KEY=...
+OBSIDIAN_VAULT_PATH=/path/to/vault
+```
 
-EchoForge treats transcript generation as an agent-native audio understanding step.
+Optional Feishu settings:
 
-That stage should accept:
-- the raw audio file
-- a scenario-specific prompt from the active profile
-- optional terminology hints and context
+```bash
+FEISHU_MINUTES_SYNC_BIN=feishu-minutes-sync
+FEISHU_MINUTES_SYNC_EXPORTS_DIR=./exports
+```
 
-The result should be two related artifacts:
+## Commands
 
-- a machine transcript for downstream chaptering and minutes generation
-- a human-readable transcript for direct writing into Obsidian
+```bash
+python -m echoforge process-feishu <minute_token>
+python -m echoforge process-feishu <minute_token> --output-vault ~/Obsidian/vault
+python -m echoforge process-file ./recording.ogg --media-url https://example.com/recording.ogg
+python -m echoforge render <run_id>
+python -m echoforge list-runs
+python -m echoforge inspect-run <run_id>
+```
 
-EchoForge itself does not call a model API directly.
-Instead, `runtime/agent/` emits a task contract for the host agent and then accepts the host agent's JSON result.
+Use `python -m echoforge --help` for the full CLI.
 
-Profiles declare:
-
-- scenario prompt
-- terminology hints
-- capability expectations
-
-They do not declare API keys, providers, or concrete model ids.
-
-## Host-Agent Flow
-
-Recommended flow:
-
-1. `echoforge ingest ...` or `echoforge-agent prepare-understanding ...`
-2. host agent reads the emitted task spec
-3. host agent uses its own multimodal model session to understand the audio
-4. host agent writes a JSON result file
-5. `echoforge process ... --audio-result <file>` or `echoforge-agent complete-understanding ...`
-
-The host-agent result is expected to contain:
-
-- `transcriptUtterances` for machine consumption
-- `obsidianTranscriptMarkdown` for direct human reading
-
-## CLI Surface
-
-Current operational commands:
-
-- `echoforge ingest local --file <path>`
-- `echoforge ingest chat --file <path>`
-- `echoforge ingest source --kind feishu_minutes --item <itemId> --manifest <manifest.json>`
-- `echoforge sync feishu`
-- `echoforge sync source --kind feishu_minutes --manifest <manifest.json>`
-- `echoforge process local --file <path> --audio-result <result.json>`
-- `echoforge process recording <recordingId> --audio-result <result.json>`
-- `echoforge process batch --batch <batch.json>`
-- `echoforge rebuild run <runId>`
-- `echoforge rebuild minutes <runId>`
-- `echoforge rebuild publish <runId>`
-- `echoforge inspect validate [runId]`
-- `echoforge repair state [runId]`
-
-`inspect validate` checks state and artifacts against current schemas.
-`repair state` upgrades legacy run artifacts to the current contracts and regenerates missing metadata such as `run.json` and `transcript.md`.
-
-## Repository Layout
+## Layout
 
 ```text
 EchoForge/
-├── adapters/
-│   └── sources/
-├── docs/
-├── pipeline/
-│   └── providers/
-├── profiles/
-├── runtime/
-│   ├── agent/
-│   └── cli/
-├── schemas/
-├── scripts/
-└── state/
+├── archive/
+├── config/
+├── outputs/
+├── src/echoforge/
+└── tests/
 ```
 
-## Relationship to Other Repositories
+## Testing
 
-`feishu-minutes-sync` remains a dedicated Feishu source adapter repository.
-
-EchoForge is the larger system that will later either:
-
-- import the adapter logic
-- wrap it
-- or absorb a refined version of it into `adapters/sources/feishu_minutes`
-
-## Design Document
-
-See `docs/audio-intelligence-design.md` for the current system design.
+```bash
+pytest
+```
