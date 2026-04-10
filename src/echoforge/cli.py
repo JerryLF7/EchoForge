@@ -13,10 +13,13 @@ from echoforge.pipeline.uploader import TingwuInputResolver
 from echoforge.providers.tingwu import TingwuProvider
 from echoforge.renderers.obsidian import ObsidianRenderer
 from echoforge.sources.feishu import FeishuSource
+import logging
+
 from echoforge.storage.artifacts import ArtifactManager
 from echoforge.storage.r2_client import R2Client
 from echoforge.storage.state import StateStore
 
+logger = logging.getLogger(__name__)
 app = typer.Typer(no_args_is_help=True)
 
 
@@ -42,8 +45,8 @@ def _build_orchestrator(*, with_provider: bool, with_feishu: bool) -> Orchestrat
     if with_provider:
         try:
             r2_client = R2Client(settings)
-        except EchoForgeError:
-            r2_client = None
+        except EchoForgeError as exc:
+            logger.warning("R2 transit not available: %s", exc)
     input_resolver = TingwuInputResolver(r2_client=r2_client) if with_provider else None
     return Orchestrator(
         settings,

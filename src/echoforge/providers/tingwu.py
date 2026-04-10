@@ -80,8 +80,10 @@ class TingwuProvider:
     RESULT_NAME_MAP = {
         "transcription": "transcription",
         "auto_chapters": "chapters",
+        "autochapters": "chapters",
         "summarization": "summarization",
         "meeting_assistance": "meeting_assistance",
+        "meetingassistance": "meeting_assistance",
     }
 
     def __init__(self, settings: Settings, request_executor: TingwuRequestExecutor | None = None) -> None:

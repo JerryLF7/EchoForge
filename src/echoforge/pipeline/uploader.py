@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
 
 from echoforge.errors import TingwuUploadError
 from echoforge.storage.r2_client import R2Client

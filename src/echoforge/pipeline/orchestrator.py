@@ -185,6 +185,13 @@ class Orchestrator:
             run.completed_at = utc_now()
             run.error_message = str(exc)
             self._persist_run(run)
+            if run.r2_object_key and self.r2_client:
+                try:
+                    self.r2_client.delete_object(run.r2_object_key)
+                    run.media_cleaned = True
+                except R2CleanupError:
+                    run.media_cleaned = False
+                self._persist_run(run)
             raise
 
     def _new_run(self, *, source: str, title: str, minute_token: str | None = None) -> RunRecord:
