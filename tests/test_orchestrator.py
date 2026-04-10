@@ -41,8 +41,8 @@ class FakeProvider:
 
 
 class StaticResolver(TingwuInputResolver):
-    def resolve(self, file_path: Path, media_url: str | None = None) -> str:
-        return media_url or "https://example.com/audio.ogg"
+    def resolve(self, file_path: Path, media_url: str | None = None, run_id: str | None = None) -> tuple[str, str | None]:
+        return media_url or "https://example.com/audio.ogg", None
 
 
 def test_orchestrator_processes_file_and_updates_state(settings, tmp_path: Path) -> None:

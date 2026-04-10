@@ -6,9 +6,10 @@ from pathlib import Path
 from typing import Any
 
 from config.settings import Settings
-from echoforge.errors import ConfigMissingError, EchoForgeError
+from echoforge.errors import ConfigMissingError, EchoForgeError, R2CleanupError
 from echoforge.models import ObsidianNote, RunRecord, utc_now
 from echoforge.storage.artifacts import ArtifactManager
+from echoforge.storage.r2_client import R2Client
 from echoforge.storage.state import StateStore
 
 
@@ -23,6 +24,7 @@ class Orchestrator:
         renderer: Any,
         feishu_source: Any | None = None,
         input_resolver: Any | None = None,
+        r2_client: R2Client | None = None,
     ) -> None:
         self.settings = settings
         self.state_store = state_store
@@ -31,6 +33,7 @@ class Orchestrator:
         self.renderer = renderer
         self.feishu_source = feishu_source
         self.input_resolver = input_resolver
+        self.r2_client = r2_client
 
     def run_feishu(
         self,
@@ -137,8 +140,11 @@ class Orchestrator:
         try:
             run.media_path = staged_media
             self._persist_run(run)
-            resolved_media_url = self.input_resolver.resolve(staged_media, media_url)
+            resolved_media_url, r2_object_key = self.input_resolver.resolve(staged_media, media_url, run_id=run.run_id)
             run.media_url = resolved_media_url
+            if r2_object_key:
+                run.r2_object_key = r2_object_key
+            self._persist_run(run)
             task_id = self.provider.create_task(file_url=resolved_media_url, title=run.title)
             run.tingwu_task_id = task_id
             run.status = "processing"
@@ -164,6 +170,15 @@ class Orchestrator:
                         template=selected_template,
                     )
                     self._persist_run(run)
+
+            if run.r2_object_key and self.r2_client:
+                try:
+                    self.r2_client.delete_object(run.r2_object_key)
+                    run.media_cleaned = True
+                except R2CleanupError:
+                    run.media_cleaned = False
+                self._persist_run(run)
+
             return run
         except EchoForgeError as exc:
             run.status = "failed"

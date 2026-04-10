@@ -40,6 +40,8 @@ class RunRecord(EchoForgeModel):
     tingwu_status: str | None = None
     media_path: Path | None = None
     media_url: str | None = None
+    r2_object_key: str | None = None
+    media_cleaned: bool = False
     outputs: RunOutputs = Field(default_factory=RunOutputs)
     obsidian: ObsidianNote | None = None
     error_message: str | None = None

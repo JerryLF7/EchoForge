@@ -7,6 +7,7 @@ __pycache__/
 htmlcov/
 .venv/
 .env
+*.egg-info/
 outputs/*
 !outputs/.gitkeep
 .DS_Store

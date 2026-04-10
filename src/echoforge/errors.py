@@ -26,5 +26,17 @@ class TingwuTaskError(EchoForgeError):
     """Raised when a Tingwu task fails or times out."""
 
 
+class R2UploadError(EchoForgeError):
+    """Raised when media upload to R2 fails."""
+
+
+class R2PresignError(EchoForgeError):
+    """Raised when generating an R2 presigned URL fails."""
+
+
+class R2CleanupError(EchoForgeError):
+    """Raised when deleting an R2 object fails."""
+
+
 class ObsidianWriteError(EchoForgeError):
     """Raised when a rendered note cannot be written."""

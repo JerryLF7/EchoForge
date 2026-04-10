@@ -17,4 +17,8 @@ def settings(tmp_path: Path) -> Settings:
         tingwu_access_key_id="test-ak",
         tingwu_access_key_secret="test-sk",
         tingwu_app_key="test-app",
+        r2_account_id="test-r2-account",
+        r2_access_key_id="test-r2-ak",
+        r2_secret_access_key="test-r2-sk",
+        r2_bucket_name="test-bucket",
     )

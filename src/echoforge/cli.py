@@ -14,6 +14,7 @@ from echoforge.providers.tingwu import TingwuProvider
 from echoforge.renderers.obsidian import ObsidianRenderer
 from echoforge.sources.feishu import FeishuSource
 from echoforge.storage.artifacts import ArtifactManager
+from echoforge.storage.r2_client import R2Client
 from echoforge.storage.state import StateStore
 
 app = typer.Typer(no_args_is_help=True)
@@ -37,7 +38,13 @@ def _build_orchestrator(*, with_provider: bool, with_feishu: bool) -> Orchestrat
     renderer = ObsidianRenderer()
     provider = TingwuProvider(settings) if with_provider else None
     feishu_source = FeishuSource(settings) if with_feishu else None
-    input_resolver = TingwuInputResolver() if with_provider else None
+    r2_client: R2Client | None = None
+    if with_provider:
+        try:
+            r2_client = R2Client(settings)
+        except EchoForgeError:
+            r2_client = None
+    input_resolver = TingwuInputResolver(r2_client=r2_client) if with_provider else None
     return Orchestrator(
         settings,
         state_store,
@@ -46,6 +53,7 @@ def _build_orchestrator(*, with_provider: bool, with_feishu: bool) -> Orchestrat
         renderer=renderer,
         feishu_source=feishu_source,
         input_resolver=input_resolver,
+        r2_client=r2_client,
     )
 
 

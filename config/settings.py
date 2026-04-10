@@ -50,6 +50,27 @@ class Settings(BaseSettings):
         validation_alias=AliasChoices("TINGWU_MODEL"),
     )
 
+    r2_account_id: str | None = Field(
+        default=None,
+        validation_alias=AliasChoices("R2_ACCOUNT_ID"),
+    )
+    r2_access_key_id: str | None = Field(
+        default=None,
+        validation_alias=AliasChoices("R2_ACCESS_KEY_ID"),
+    )
+    r2_secret_access_key: str | None = Field(
+        default=None,
+        validation_alias=AliasChoices("R2_SECRET_ACCESS_KEY"),
+    )
+    r2_bucket_name: str | None = Field(
+        default=None,
+        validation_alias=AliasChoices("R2_BUCKET_NAME"),
+    )
+    r2_presigned_expiry: int = Field(
+        default=10800,
+        validation_alias=AliasChoices("R2_PRESIGNED_EXPIRY"),
+    )
+
     outputs_dir: Path = Field(
         default=Path("outputs"),
         validation_alias=AliasChoices("ECHOFORGE_OUTPUTS_DIR", "ECHFORGE_OUTPUTS_DIR"),
