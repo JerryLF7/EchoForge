@@ -53,8 +53,7 @@ class AlibabaCloudTingwuSdkExecutor:
         return self._to_dict(response)
 
     def get_task_info(self, task_id: str) -> dict[str, Any]:
-        request = self._build_request("GetTaskInfoRequest", {"TaskId": task_id})
-        response = self._client.get_task_info(request)
+        response = self._client.get_task_info(task_id)
         return self._to_dict(response)
 
     def _build_request(self, model_name: str, payload: dict[str, Any]) -> Any:
@@ -62,8 +61,13 @@ class AlibabaCloudTingwuSdkExecutor:
         request = model_cls()
         if hasattr(request, "from_map"):
             mapped = request.from_map(payload)
-            return request if mapped is None else mapped
-        return model_cls(**payload)
+            request = request if mapped is None else mapped
+        else:
+            request = model_cls(**payload)
+        # Alibaba SDK from_map skips 'type' keyword fields; patch directly
+        if "Type" in payload and hasattr(request, "type") and getattr(request, "type") is None:
+            request.type = payload["Type"]
+        return request
 
     def _to_dict(self, response: Any) -> dict[str, Any]:
         body = getattr(response, "body", response)
@@ -102,18 +106,24 @@ class TingwuProvider:
         input_block: dict[str, Any] = {
             "FileUrl": file_url,
             "SourceLanguage": self.settings.tingwu_language,
-            "Properties": {
-                "Transcription": True,
-                "AutoChapters": True,
-                "Summarization": True,
-                "MeetingAssistance": True,
-            },
         }
         if title:
             input_block["Title"] = title
         return {
             "AppKey": self.settings.tingwu_app_key,
             "Input": input_block,
+            "Type": "offline",
+            "Parameters": {
+                "AutoChaptersEnabled": True,
+                "SummarizationEnabled": True,
+                "Summarization": {
+                    "Types": ["Paragraph", "Conversational", "QuestionsAnswering"],
+                },
+                "MeetingAssistanceEnabled": True,
+                "MeetingAssistance": {
+                    "Types": ["Actions", "KeyInformation"],
+                },
+            },
         }
 
     def get_task_info(self, task_id: str) -> TingwuTaskResult:
