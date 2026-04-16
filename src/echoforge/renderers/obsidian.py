@@ -24,13 +24,161 @@ class ObsidianRenderer:
             keep_trailing_newline=True,
         )
 
+    def render(self, run: RunRecord, *, vault_path: Path, template: str = "full") -> tuple[Path, Path]:
+        """Render both the summary note (B) and the transcript (A), then update index."""
+        base_name = self._base_name(run)
+        transcript_name = f"{base_name}-transcript"
+
+        # 1. Build shared data
+        transcription = self._load_json(run.outputs.transcription)
+        chapters_payload = self._load_json(run.outputs.chapters)
+        summarization = self._load_json(run.outputs.summarization)
+        meeting_assistance = self._load_json(run.outputs.meeting_assistance)
+
+        # 2. Render transcript (A)
+        transcript_path = self._render_transcript(
+            run, vault_path=vault_path, name=transcript_name, transcription=transcription
+        )
+
+        # 3. Resolve chapter anchors against transcript paragraphs
+        anchors = self._resolve_chapter_anchors(chapters_payload, transcription)
+
+        # 4. Render summary note (B)
+        note_path = self._render_minutes(
+            run,
+            vault_path=vault_path,
+            template=template,
+            base_name=base_name,
+            transcript_name=transcript_name,
+            transcription=transcription,
+            chapters_payload=chapters_payload,
+            summarization=summarization,
+            meeting_assistance=meeting_assistance,
+            anchors=anchors,
+        )
+
+        # 5. Update index
+        self._update_index(run, vault_path=vault_path, note_name=base_name)
+
+        return note_path, transcript_path
+
+    # Kept for backward-compat; new code should call .render()
     def render_to_run(self, run: RunRecord, *, vault_path: Path, template: str = "full") -> Path:
-        context = self._build_context(run)
+        note_path, _ = self.render(run, vault_path=vault_path, template=template)
+        return note_path
+
+    def _base_name(self, run: RunRecord) -> str:
+        return f"{run.created_at.date().isoformat()}-{sanitize_title(run.title)}"
+
+    def _render_transcript(
+        self,
+        run: RunRecord,
+        *,
+        vault_path: Path,
+        name: str,
+        transcription: dict[str, Any],
+    ) -> Path:
+        paragraphs = transcription.get("Transcription", {}).get("Paragraphs", [])
+        utterances: list[dict[str, Any]] = []
+        for idx, para in enumerate(paragraphs):
+            words = para.get("Words", [])
+            if not words:
+                continue
+            start_ms = words[0].get("Start", 0)
+            text = "".join(w.get("Text", "") for w in words)
+            speaker_id = para.get("SpeakerId", "Unknown")
+            utterances.append(
+                {
+                    "time_label": self._format_millis(start_ms),
+                    "speaker": f"说话人 {speaker_id}",
+                    "text": text,
+                    "anchor": f"ef-{idx:03d}",
+                }
+            )
+
+        duration_ms = transcription.get("Transcription", {}).get("AudioInfo", {}).get("Duration", 0)
+
+        context = {
+            "title": run.title,
+            "source_label": "Feishu Minutes" if run.source == "feishu" else "Local File",
+            "created_at": run.created_at.astimezone().strftime("%Y-%m-%d %H:%M"),
+            "generated_at": datetime.now().astimezone().strftime("%Y-%m-%d %H:%M"),
+            "duration": self._format_millis(duration_ms),
+            "note_name": self._base_name(run),
+            "utterances": utterances,
+        }
+
+        body = self.environment.get_template("transcript.md.j2").render(**context).strip()
+        transcript_dir = vault_path / "meetings" / "Transcripts"
+        transcript_dir.mkdir(parents=True, exist_ok=True)
+        transcript_path = transcript_dir / f"{name}.md"
+        try:
+            transcript_path.write_text(body + "\n", encoding="utf-8")
+        except OSError as exc:
+            raise ObsidianWriteError(f"Failed to write transcript: {transcript_path}") from exc
+        return transcript_path
+
+    def _resolve_chapter_anchors(
+        self,
+        chapters_payload: dict[str, Any],
+        transcription: dict[str, Any],
+    ) -> dict[int, str]:
+        """Map each chapter index to the closest transcript paragraph anchor."""
+        paragraphs = transcription.get("Transcription", {}).get("Paragraphs", [])
+        paragraph_starts: list[int] = []
+        for para in paragraphs:
+            words = para.get("Words", [])
+            paragraph_starts.append(words[0].get("Start", 0) if words else 0)
+
+        anchors: dict[int, str] = {}
+        for idx, chapter in enumerate(chapters_payload.get("AutoChapters", [])):
+            chapter_start = chapter.get("StartTime", 0)
+            best_idx = 0
+            best_diff = abs(paragraph_starts[0] - chapter_start) if paragraph_starts else 0
+            for pidx, pstart in enumerate(paragraph_starts[1:], 1):
+                diff = abs(pstart - chapter_start)
+                if diff < best_diff:
+                    best_diff = diff
+                    best_idx = pidx
+            anchors[idx] = f"ef-{best_idx:03d}"
+        return anchors
+
+    def _render_minutes(
+        self,
+        run: RunRecord,
+        *,
+        vault_path: Path,
+        template: str,
+        base_name: str,
+        transcript_name: str,
+        transcription: dict[str, Any],
+        chapters_payload: dict[str, Any],
+        summarization: dict[str, Any],
+        meeting_assistance: dict[str, Any],
+        anchors: dict[int, str],
+    ) -> Path:
+        chapters = self._chapters_context(chapters_payload, anchors)
+        duration_ms = transcription.get("Transcription", {}).get("AudioInfo", {}).get("Duration", 0)
+
+        context = {
+            "title": run.title,
+            "source_label": "Feishu Minutes" if run.source == "feishu" else "Local File",
+            "created_at": run.created_at.astimezone().strftime("%Y-%m-%d %H:%M"),
+            "generated_at": datetime.now().astimezone().strftime("%Y-%m-%d %H:%M"),
+            "duration": self._format_millis(duration_ms),
+            "transcript_name": transcript_name,
+            "chapters": chapters,
+            "paragraph_summary": summarization.get("ParagraphSummary", ""),
+            "speakers": self._speaker_summaries(summarization),
+            "qa_pairs": summarization.get("QaPairs", []),
+            "actions": meeting_assistance.get("Actions", []),
+            "key_information": meeting_assistance.get("KeyInformation", []),
+        }
+
         body = self.environment.get_template(f"{template}.md.j2").render(**context).strip()
         note_dir = vault_path / "meetings"
         note_dir.mkdir(parents=True, exist_ok=True)
-        file_name = f"{run.created_at.date().isoformat()}-{sanitize_title(run.title)}.md"
-        note_path = note_dir / file_name
+        note_path = note_dir / f"{base_name}.md"
         document = f"{self._build_front_matter(run)}\n{body}\n"
         try:
             note_path.write_text(document, encoding="utf-8")
@@ -38,24 +186,17 @@ class ObsidianRenderer:
             raise ObsidianWriteError(f"Failed to write Obsidian note: {note_path}") from exc
         return note_path
 
-    def _build_context(self, run: RunRecord) -> dict[str, Any]:
-        transcription = self._load_json(run.outputs.transcription)
-        chapters = self._load_json(run.outputs.chapters)
-        summarization = self._load_json(run.outputs.summarization)
-        meeting_assistance = self._load_json(run.outputs.meeting_assistance)
-        return {
-            "title": run.title,
-            "source_label": "Feishu Minutes" if run.source == "feishu" else "Local File",
-            "created_at": run.created_at.astimezone().strftime("%Y-%m-%d %H:%M"),
-            "generated_at": datetime.now().astimezone().strftime("%Y-%m-%d %H:%M"),
-            "chapters": self._chapters_context(chapters),
-            "paragraph_summary": summarization.get("ParagraphSummary", ""),
-            "speakers": self._speaker_summaries(summarization),
-            "qa_pairs": summarization.get("QaPairs", []),
-            "actions": meeting_assistance.get("Actions", []),
-            "key_information": meeting_assistance.get("KeyInformation", []),
-            "utterances": transcription.get("Transcription", {}).get("Utterances", []),
-        }
+    def _update_index(self, run: RunRecord, *, vault_path: Path, note_name: str) -> None:
+        index_path = vault_path / "EchoForge Index.md"
+        entry = f"- [[{note_name}|{run.title}]] — {run.created_at.date().isoformat()}"
+        header = "# EchoForge 录音索引\n\n"
+        if index_path.exists():
+            content = index_path.read_text(encoding="utf-8")
+            if entry not in content:
+                content = content.rstrip("\n") + "\n" + entry + "\n"
+                index_path.write_text(content, encoding="utf-8")
+        else:
+            index_path.write_text(header + entry + "\n", encoding="utf-8")
 
     def _build_front_matter(self, run: RunRecord) -> str:
         tags = ["meetings", "feishu-minutes" if run.source == "feishu" else "local-audio"]
@@ -74,16 +215,19 @@ class ObsidianRenderer:
             return {}
         return json.loads(path.read_text(encoding="utf-8"))
 
-    def _chapters_context(self, payload: dict[str, Any]) -> list[dict[str, Any]]:
+    def _chapters_context(
+        self, payload: dict[str, Any], anchors: dict[int, str]
+    ) -> list[dict[str, Any]]:
         chapters = payload.get("AutoChapters", [])
         result: list[dict[str, Any]] = []
-        for chapter in chapters:
+        for idx, chapter in enumerate(chapters):
             result.append(
                 {
-                    "title": chapter.get("ChapterTitle", "Untitled"),
+                    "title": chapter.get("Headline") or chapter.get("ChapterTitle", "Untitled"),
                     "summary": chapter.get("Summary", ""),
-                    "start_label": self._format_millis(chapter.get("StartTime")),
-                    "end_label": self._format_millis(chapter.get("EndTime")),
+                    "start_label": self._format_millis(chapter.get("StartTime") or chapter.get("Start")),
+                    "end_label": self._format_millis(chapter.get("EndTime") or chapter.get("End")),
+                    "anchor": anchors.get(idx, ""),
                 }
             )
         return result

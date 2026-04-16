@@ -1,0 +1,14 @@
+# {{ title }} — 转写原文
+
+> **来源**：{{ source_label }} | {{ created_at }} | 时长：{{ duration }}
+> **对应笔记**：[[{{ note_name }}]]
+
+---
+
+{% for u in utterances %}
+**{{ u.time_label }}** `{{ u.speaker }}` ^{{ u.anchor }}
+{{ u.text }}
+
+{% endfor %}
+
+_由 EchoForge 自动生成 | {{ generated_at }}_

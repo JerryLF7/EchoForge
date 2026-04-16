@@ -1,11 +1,12 @@
 # {{ title }}
 
 > **来源**：{{ source_label }} | {{ created_at }}
+> **转写原文**：[[{{ transcript_name }}]]
 
 ## 章节速览
 {% if chapters %}
 {% for chapter in chapters %}
-- [{{ chapter.start_label }} - {{ chapter.end_label }}] **{{ chapter.title }}**
+- [[{{ transcript_name }}#^{{ chapter.anchor }}|{{ chapter.start_label }} - {{ chapter.end_label }}]] **{{ chapter.title }}**
   {{ chapter.summary }}
 {% endfor %}
 {% else %}

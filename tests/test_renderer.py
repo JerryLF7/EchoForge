@@ -13,9 +13,10 @@ def test_renderer_writes_obsidian_note(tmp_path: Path) -> None:
     chapters_path = outputs_dir / "chapters.json"
     summarization_path = outputs_dir / "summarization.json"
     meeting_path = outputs_dir / "meeting_assistance.json"
+    transcription_path = outputs_dir / "transcription.json"
 
     chapters_path.write_text(
-        json.dumps({"AutoChapters": [{"ChapterTitle": "开场", "Summary": "介绍项目", "StartTime": 0, "EndTime": 30000}]}),
+        json.dumps({"AutoChapters": [{"Headline": "开场", "Summary": "介绍项目", "Start": 0, "End": 30000}]}),
         encoding="utf-8",
     )
     summarization_path.write_text(
@@ -24,6 +25,32 @@ def test_renderer_writes_obsidian_note(tmp_path: Path) -> None:
     )
     meeting_path.write_text(
         json.dumps({"Actions": [{"Action": "完成迁移", "DueTime": "2026-03-25"}], "KeyInformation": [{"Category": "关键决策", "Content": "迁移到 Python CLI"}]}),
+        encoding="utf-8",
+    )
+    transcription_path.write_text(
+        json.dumps({
+            "Transcription": {
+                "Paragraphs": [
+                    {
+                        "ParagraphId": "p1",
+                        "SpeakerId": "1",
+                        "Words": [
+                            {"Start": 180, "End": 458, "Text": "这"},
+                            {"Start": 458, "End": 736, "Text": "是"},
+                            {"Start": 736, "End": 1014, "Text": "测试。"},
+                        ],
+                    },
+                    {
+                        "ParagraphId": "p2",
+                        "SpeakerId": "2",
+                        "Words": [
+                            {"Start": 3000, "End": 3500, "Text": "收到"},
+                            {"Start": 3500, "End": 4000, "Text": "。"},
+                        ],
+                    },
+                ]
+            }
+        }),
         encoding="utf-8",
     )
 
@@ -37,6 +64,7 @@ def test_renderer_writes_obsidian_note(tmp_path: Path) -> None:
             chapters=chapters_path,
             summarization=summarization_path,
             meeting_assistance=meeting_path,
+            transcription=transcription_path,
         ),
     )
 
@@ -48,3 +76,18 @@ def test_renderer_writes_obsidian_note(tmp_path: Path) -> None:
     assert "周会纪要" in content
     assert "迁移到 Python CLI" in content
     assert "完成迁移" in content
+    assert "转写原文" in content
+    assert "[[2026-04-16-周会纪要-transcript]]" in content
+    assert "00:00 - 00:30" in content
+    assert "#^ef-000" in content
+
+    transcript_path = note_path.parent / "Transcripts" / "2026-04-16-周会纪要-transcript.md"
+    transcript_content = transcript_path.read_text(encoding="utf-8")
+    assert "00:00" in transcript_content
+    assert "说话人 1" in transcript_content
+    assert "这是测试。" in transcript_content
+    assert "00:03" in transcript_content
+    assert "说话人 2" in transcript_content
+    assert "收到。" in transcript_content
+    assert "^ef-000" in transcript_content
+    assert "^ef-001" in transcript_content
