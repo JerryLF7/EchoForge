@@ -10,9 +10,7 @@ The current pipeline targets three steps:
 
 ## Status
 
-This repository has been refactored away from the legacy Node.js pipeline.
-
-The new Python code lives under `src/echoforge/`, while the old implementation has been moved to `archive/legacy-node/`.
+The Python implementation under `src/echoforge/` is the current pipeline. It has been verified end-to-end (Tingwu API + R2 transit).
 
 One important integration constraint comes from the current Tingwu documentation:
 
@@ -64,7 +62,6 @@ Use `python -m echoforge --help` for the full CLI.
 
 ```text
 EchoForge/
-├── archive/
 ├── config/
 ├── outputs/
 ├── src/echoforge/

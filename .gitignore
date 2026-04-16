@@ -12,3 +12,4 @@ outputs/*
 !outputs/.gitkeep
 .DS_Store
 *.log
+graphify-out/
