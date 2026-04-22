@@ -100,20 +100,16 @@ class Settings(BaseSettings):
         default=None,
         validation_alias=AliasChoices("DOUBAO_SPEECH_TOKEN"),
     )
-    doubao_speech_cluster: str | None = Field(
-        default=None,
-        validation_alias=AliasChoices("DOUBAO_SPEECH_CLUSTER"),
-    )
-    doubao_speech_uid: str = Field(
-        default="echoforge",
-        validation_alias=AliasChoices("DOUBAO_SPEECH_UID"),
+    doubao_speech_resource_id: str = Field(
+        default="volc.seedasr.auc",
+        validation_alias=AliasChoices("DOUBAO_SPEECH_RESOURCE_ID"),
     )
     doubao_speech_submit_url: str = Field(
-        default="https://openspeech.bytedance.com/api/v1/auc/submit",
+        default="https://openspeech.bytedance.com/api/v3/auc/bigmodel/submit",
         validation_alias=AliasChoices("DOUBAO_SPEECH_SUBMIT_URL"),
     )
     doubao_speech_query_url: str = Field(
-        default="https://openspeech.bytedance.com/api/v1/auc/query",
+        default="https://openspeech.bytedance.com/api/v3/auc/bigmodel/query",
         validation_alias=AliasChoices("DOUBAO_SPEECH_QUERY_URL"),
     )
 

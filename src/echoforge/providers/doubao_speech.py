@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import uuid
 from pathlib import Path
 from typing import Any
 
@@ -13,16 +14,16 @@ from echoforge.pipeline.poller import poll_until
 
 
 class DoubaoSpeechProvider:
-    """Doubao Speech ASR (standard edition) — api/v1/auc.
+    """Doubao Speech ASR (big-model edition) — api/v3/auc/bigmodel.
 
-    Docs: https://www.volcengine.com/docs/6561/80820
+    Docs: https://www.volcengine.com/docs/6561/1354868
 
-    Key differences from the Lark/Minutes provider:
-    - Auth: Bearer token in header + app/token/cluster in JSON body.
-    - Endpoints: /api/v1/auc/submit  and  /api/v1/auc/query
+    Key differences from the legacy standard edition:
+    - Auth: X-Api-* headers (no cluster, no body-auth).
+    - Endpoints: /api/v3/auc/bigmodel/submit  and  /api/v3/auc/bigmodel/query
+    - Client generates the task UUID and re-uses it for query.
+    - Request body carries user/audio/request objects.
     - Query returns utterances inline (no download URLs).
-    - Supports up to 5 hours / 512 MB per file.
-    - Status codes: 1000=success, 2000=processing, 2001=queued.
     """
 
     def __init__(self, settings: Settings, client: httpx.Client | None = None) -> None:
@@ -39,45 +40,41 @@ class DoubaoSpeechProvider:
 
     def create_task(self, file_url: str, title: str | None = None) -> str:
         del title
+        task_id = str(uuid.uuid4())
         payload = self._build_submit_payload(file_url)
         response = self.client.post(
             self.settings.doubao_speech_submit_url,
-            headers=self._headers(),
+            headers=self._headers(task_id, sequence="-1"),
             json=payload,
         )
-        self._raise_for_api_error(response, action="submit")
-        data = response.json()
-        resp = data.get("resp", {})
-        task_id = resp.get("id")
-        if not isinstance(task_id, str) or not task_id:
-            raise TingwuTaskError(f"Could not extract task id: {data}")
+        self._raise_for_submit_error(response)
         return task_id
 
     def get_task_info(self, task_id: str) -> TingwuTaskResult:
-        payload = {
-            "appid": self.settings.doubao_speech_appid,
-            "token": self.settings.doubao_speech_token,
-            "cluster": self.settings.doubao_speech_cluster,
-            "id": task_id,
-        }
         response = self.client.post(
             self.settings.doubao_speech_query_url,
-            headers=self._headers(),
-            json=payload,
+            headers=self._headers(task_id),
+            json={},
         )
-        self._raise_for_api_error(response, action="query")
-        data = response.json()
-        resp = data.get("resp", {})
+        status_code = response.headers.get("X-Api-Status-Code", "")
+        message = response.headers.get("X-Api-Message", "")
 
-        status = self._normalize_status(resp.get("code"))
-        raw_transcription = self._extract_inline_transcription(resp)
+        # 20000000 = done; 20000001 = still processing; anything else = error
+        if status_code not in ("20000000", "20000001"):
+            raise TingwuTaskError(
+                f"DoubaoSpeech query failed ({status_code}): {message}"
+            )
+
+        data = response.json() if response.text else {}
+        status = "completed" if status_code == "20000000" else "processing"
+        raw_transcription = self._extract_inline_transcription(data)
 
         return TingwuTaskResult(
             task_id=task_id,
             status=status,
             result_urls={"_raw_transcription": raw_transcription} if raw_transcription else {},
             raw=data,
-            message=resp.get("message"),
+            message=message,
         )
 
     def wait_for_completion(self, task_id: str) -> TingwuTaskResult:
@@ -103,7 +100,7 @@ class DoubaoSpeechProvider:
             tpath.write_text(raw, encoding="utf-8")
             downloaded["transcription"] = tpath
 
-        # Standard edition does not produce chapters / summarization /
+        # Big-model edition does not produce chapters / summarization /
         # meeting_assistance. Write empty stubs so rendering can proceed.
         for name, content in (
             ("chapters", '{"chapter_summary": []}'),
@@ -121,44 +118,49 @@ class DoubaoSpeechProvider:
     # Helpers
     # ------------------------------------------------------------------
 
-    def _headers(self) -> dict[str, str]:
-        return {
+    def _headers(self, request_id: str, sequence: str | None = None) -> dict[str, str]:
+        headers: dict[str, str] = {
             "Content-Type": "application/json",
-            "Authorization": f"Bearer; {self.settings.doubao_speech_token}",
+            "X-Api-App-Key": self.settings.doubao_speech_appid,
+            "X-Api-Access-Key": self.settings.doubao_speech_token,
+            "X-Api-Resource-Id": self.settings.doubao_speech_resource_id,
+            "X-Api-Request-Id": request_id,
         }
+        if sequence is not None:
+            headers["X-Api-Sequence"] = sequence
+        return headers
 
     def _build_submit_payload(self, file_url: str) -> dict[str, Any]:
-        payload: dict[str, Any] = {
-            "app": {
-                "appid": self.settings.doubao_speech_appid,
-                "token": self.settings.doubao_speech_token,
-                "cluster": self.settings.doubao_speech_cluster,
-            },
+        return {
             "user": {
-                "uid": self.settings.doubao_speech_uid or "echoforge",
+                "uid": "echoforge",
             },
             "audio": {
                 "url": file_url,
                 "format": self._infer_format(file_url),
             },
-            "additions": {
-                "use_itn": "True",
-                "use_punc": "True",
-                "use_ddc": "True",
-                "with_speaker_info": "True",
+            "request": {
+                "model_name": "bigmodel",
+                "enable_itn": True,
+                "enable_punc": True,
+                "enable_ddc": True,
+                "enable_speaker_info": True,
+                "show_utterances": True,
             },
         }
-        return payload
 
-    def _extract_inline_transcription(self, resp: dict[str, Any]) -> str | None:
-        utterances = resp.get("utterances")
+    def _extract_inline_transcription(self, data: dict[str, Any]) -> str | None:
+        result = data.get("result")
+        if not isinstance(result, dict):
+            return None
+        utterances = result.get("utterances")
         if not isinstance(utterances, list) or not utterances:
             return None
         normalised = self._normalise_utterances(utterances)
         return json.dumps(normalised, ensure_ascii=False, indent=2)
 
     def _normalise_utterances(self, utterances: list[dict[str, Any]]) -> list[dict[str, Any]]:
-        """Convert standard-edition utterances into the list-of-sentences shape
+        """Convert big-model utterances into the list-of-sentences shape
         already used by the Lark provider and the Obsidian renderer.
         """
         out: list[dict[str, Any]] = []
@@ -196,23 +198,15 @@ class DoubaoSpeechProvider:
             })
         return out
 
-    def _raise_for_api_error(self, response: httpx.Response, *, action: str) -> None:
+    def _raise_for_submit_error(self, response: httpx.Response) -> None:
         response.raise_for_status()
-        data = response.json()
-        resp = data.get("resp", {})
-        code = resp.get("code")
-        # 1000 = success; 2000/2001 = still processing (query only)
-        if code in (1000, "1000", 2000, "2000", 2001, "2001"):
+        status_code = response.headers.get("X-Api-Status-Code", "")
+        message = response.headers.get("X-Api-Message", "")
+        if status_code == "20000000":
             return
-        message = resp.get("message", "")
-        raise TingwuTaskError(f"DoubaoSpeech {action} failed ({code}): {message}")
-
-    def _normalize_status(self, code: Any) -> str:
-        if code in (1000, "1000"):
-            return "completed"
-        if code in (2000, "2000", 2001, "2001"):
-            return "processing"
-        return "failed"
+        raise TingwuTaskError(
+            f"DoubaoSpeech submit failed ({status_code}): {message}"
+        )
 
     def _infer_format(self, file_url: str) -> str:
         suffix = Path(file_url.split("?", 1)[0]).suffix.lower()
