@@ -14,6 +14,7 @@ from echoforge.pipeline.uploader import TingwuInputResolver
 from echoforge.providers.factory import build_understanding_provider
 from echoforge.renderers.obsidian import ObsidianRenderer
 from echoforge.sources.feishu import FeishuSource
+from echoforge.summarizers.gemini import GeminiSummarizer
 import logging
 
 from echoforge.storage.artifacts import ArtifactManager
@@ -49,6 +50,12 @@ def _build_orchestrator(*, with_provider: bool, with_feishu: bool) -> Orchestrat
         except EchoForgeError as exc:
             logger.warning("R2 transit not available: %s", exc)
     input_resolver = TingwuInputResolver(r2_client=r2_client) if with_provider else None
+    summarizer: GeminiSummarizer | None = None
+    if with_provider and settings.gemini_enable_summary and settings.gemini_api_key:
+        try:
+            summarizer = GeminiSummarizer(settings)
+        except EchoForgeError as exc:
+            logger.warning("Gemini summarizer not available: %s", exc)
     return Orchestrator(
         settings,
         state_store,
@@ -58,6 +65,7 @@ def _build_orchestrator(*, with_provider: bool, with_feishu: bool) -> Orchestrat
         feishu_source=feishu_source,
         input_resolver=input_resolver,
         r2_client=r2_client,
+        summarizer=summarizer,
     )
 
 

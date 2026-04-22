@@ -27,6 +27,7 @@ class Orchestrator:
         feishu_source: Any | None = None,
         input_resolver: Any | None = None,
         r2_client: R2Client | None = None,
+        summarizer: Any | None = None,
     ) -> None:
         self.settings = settings
         self.state_store = state_store
@@ -36,6 +37,7 @@ class Orchestrator:
         self.feishu_source = feishu_source
         self.input_resolver = input_resolver
         self.r2_client = r2_client
+        self.summarizer = summarizer
 
     def run_feishu(
         self,
@@ -204,6 +206,8 @@ class Orchestrator:
                             template=selected_template,
                         )
                         self._persist_run(run)
+                        if self.summarizer is not None:
+                            self._summarize_and_rerender(run, vault, selected_template)
                 return run
 
             # --- original single-file flow ----------------------------
@@ -237,6 +241,8 @@ class Orchestrator:
                         template=selected_template,
                     )
                     self._persist_run(run)
+                    if self.summarizer is not None:
+                        self._summarize_and_rerender(run, vault, selected_template)
 
             if run.r2_object_key and self.r2_client:
                 try:
@@ -459,3 +465,36 @@ class Orchestrator:
             return
         best = max(paths, key=lambda p: p.stat().st_size)
         output_path.write_text(best.read_text(encoding="utf-8"), encoding="utf-8")
+
+    def _summarize_and_rerender(self, run: RunRecord, vault: Path, template: str) -> None:
+        """Post-process transcript with Gemini summarizer and re-render the note."""
+        if run.obsidian is None or run.obsidian.note_path is None:
+            return
+
+        from echoforge.storage.artifacts import sanitize_title
+
+        base_name = f"{run.created_at.date().isoformat()}-{sanitize_title(run.title)}"
+        transcript_name = f"{base_name}-transcript"
+        transcript_path = vault / "meetings" / "Transcripts" / f"{transcript_name}.md"
+
+        if not transcript_path.exists():
+            return
+
+        try:
+            summary = self.summarizer.summarize(transcript_path)
+            results_dir = self.artifacts.results_dir(run.run_id)
+            written = self.summarizer.write_summary_artifacts(summary, results_dir)
+            self._apply_outputs(run, written)
+            self._persist_run(run)
+
+            note_path = self.renderer.render_to_run(run, vault_path=vault, template=template)
+            run.obsidian = ObsidianNote(
+                note_path=note_path,
+                rendered_at=utc_now(),
+                template=template,
+            )
+            self._persist_run(run)
+        except Exception as exc:
+            # Summarization is best-effort; don't fail the whole pipeline.
+            run.error_message = f"Summarization failed: {exc}"
+            self._persist_run(run)

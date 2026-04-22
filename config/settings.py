@@ -113,6 +113,23 @@ class Settings(BaseSettings):
         validation_alias=AliasChoices("DOUBAO_SPEECH_QUERY_URL"),
     )
 
+    gemini_api_key: str | None = Field(
+        default=None,
+        validation_alias=AliasChoices("GEMINI_API_KEY"),
+    )
+    gemini_base_url: str = Field(
+        default="https://gemini.jerrylf.uk",
+        validation_alias=AliasChoices("GEMINI_BASE_URL", "BASE_URL"),
+    )
+    gemini_model: str = Field(
+        default="gemini-3-flash-preview",
+        validation_alias=AliasChoices("GEMINI_MODEL", "MODEL"),
+    )
+    gemini_enable_summary: bool = Field(
+        default=False,
+        validation_alias=AliasChoices("GEMINI_ENABLE_SUMMARY"),
+    )
+
     r2_account_id: str | None = Field(
         default=None,
         validation_alias=AliasChoices("R2_ACCOUNT_ID"),
