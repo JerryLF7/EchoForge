@@ -133,7 +133,7 @@ class Orchestrator:
         skip_render: bool,
     ) -> RunRecord:
         if self.provider is None:
-            raise ConfigMissingError("Tingwu provider is not configured")
+            raise ConfigMissingError("Understanding provider is not configured")
         if self.input_resolver is None:
             raise ConfigMissingError("Tingwu input resolver is not configured")
 

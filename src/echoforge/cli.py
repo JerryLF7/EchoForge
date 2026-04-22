@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from datetime import datetime
 from pathlib import Path
 
 import typer
@@ -10,7 +11,7 @@ from echoforge.errors import EchoForgeError
 from echoforge.log import configure_logging
 from echoforge.pipeline.orchestrator import Orchestrator
 from echoforge.pipeline.uploader import TingwuInputResolver
-from echoforge.providers.tingwu import TingwuProvider
+from echoforge.providers.factory import build_understanding_provider
 from echoforge.renderers.obsidian import ObsidianRenderer
 from echoforge.sources.feishu import FeishuSource
 import logging
@@ -39,7 +40,7 @@ def _build_orchestrator(*, with_provider: bool, with_feishu: bool) -> Orchestrat
     artifacts = ArtifactManager(outputs_dir)
     state_store = StateStore(outputs_dir / "runs.json")
     renderer = ObsidianRenderer()
-    provider = TingwuProvider(settings) if with_provider else None
+    provider = build_understanding_provider(settings) if with_provider else None
     feishu_source = FeishuSource(settings) if with_feishu else None
     r2_client: R2Client | None = None
     if with_provider:
@@ -144,6 +145,38 @@ def inspect_run(run_id: str) -> None:
     _, state_store = _build_state_store()
     run = state_store.get_run(run_id)
     _echo_run(run)
+
+
+@app.command("render-transcript")
+def render_transcript(
+    transcription_json: Path,
+    title: str = typer.Option(..., help="Transcript title."),
+    output_vault: Path | None = typer.Option(default=None, help="Override Obsidian vault path."),
+    note_name: str | None = typer.Option(default=None, help="Transcript note file name without extension."),
+    source_label: str = typer.Option(default="Imported Transcript", help="Source label shown in transcript header."),
+    created_at: str | None = typer.Option(default=None, help="Display timestamp like 2026-04-22 10:30."),
+) -> None:
+    try:
+        settings = get_settings()
+        configure_logging(settings.log_level)
+        vault = output_vault.expanduser().resolve() if output_vault is not None else settings.resolved_obsidian_vault_path()
+        if vault is None:
+            raise EchoForgeError("No Obsidian vault configured")
+        created_at_label = created_at
+        if created_at_label is None:
+            created_at_label = datetime.now().astimezone().strftime("%Y-%m-%d %H:%M")
+        transcript_path = ObsidianRenderer().render_transcript_only(
+            transcription_path=transcription_json.expanduser().resolve(),
+            vault_path=vault,
+            title=title,
+            note_name=note_name,
+            source_label=source_label,
+            created_at_label=created_at_label,
+        )
+        typer.echo(str(transcript_path))
+    except EchoForgeError as exc:
+        typer.echo(str(exc), err=True)
+        raise typer.Exit(code=1)
 
 
 def main() -> None:

@@ -91,3 +91,42 @@ def test_renderer_writes_obsidian_note(tmp_path: Path) -> None:
     assert "收到。" in transcript_content
     assert "^ef-000" in transcript_content
     assert "^ef-001" in transcript_content
+
+
+def test_renderer_renders_transcript_only_from_transcription_json(tmp_path: Path) -> None:
+    transcription_path = tmp_path / "transcription.json"
+    transcription_path.write_text(
+        json.dumps(
+            {
+                "Transcription": {
+                    "AudioInfo": {"Duration": 4000},
+                    "Paragraphs": [
+                        {
+                            "SpeakerId": "字幕",
+                            "Words": [
+                                {"Start": 700, "End": 1580, "Text": "这新弄还是怎么着"},
+                                {"Start": 1980, "End": 2780, "Text": "新弄新电脑"},
+                            ],
+                        }
+                    ],
+                }
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    transcript_path = ObsidianRenderer().render_transcript_only(
+        transcription_path=transcription_path,
+        vault_path=tmp_path / "vault",
+        title="税表填写规则及数据处理讨论",
+        note_name="imported-tax-transcript",
+        source_label="Feishu Minutes WEBVTT",
+        created_at_label="2026-04-22 10:30",
+    )
+    content = transcript_path.read_text(encoding="utf-8")
+
+    assert transcript_path.exists()
+    assert transcript_path.name == "imported-tax-transcript.md"
+    assert "Feishu Minutes WEBVTT" in content
+    assert "字幕" in content
+    assert "这新弄还是怎么着新弄新电脑" in content

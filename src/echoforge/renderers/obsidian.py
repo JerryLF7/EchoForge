@@ -24,6 +24,39 @@ class ObsidianRenderer:
             keep_trailing_newline=True,
         )
 
+    def render_transcript_only(
+        self,
+        *,
+        transcription_path: Path,
+        vault_path: Path,
+        title: str,
+        note_name: str | None = None,
+        source_label: str = "Imported Transcript",
+        created_at_label: str | None = None,
+    ) -> Path:
+        transcription = self._load_json(transcription_path)
+        if self._is_doubao_transcription(transcription):
+            transcription = self._normalize_doubao_transcription(transcription)
+        safe_name = sanitize_title(note_name or title)
+        context = self._build_transcript_context(
+            title=title,
+            source_label=source_label,
+            created_at=created_at_label or datetime.now().astimezone().strftime("%Y-%m-%d %H:%M"),
+            generated_at=datetime.now().astimezone().strftime("%Y-%m-%d %H:%M"),
+            duration=self._format_millis(transcription.get("Transcription", {}).get("AudioInfo", {}).get("Duration", 0)),
+            note_name=safe_name,
+            utterances=self._transcript_utterances(transcription),
+        )
+        body = self.environment.get_template("transcript.md.j2").render(**context).strip()
+        transcript_dir = vault_path / "meetings" / "Transcripts"
+        transcript_dir.mkdir(parents=True, exist_ok=True)
+        transcript_path = transcript_dir / f"{safe_name}.md"
+        try:
+            transcript_path.write_text(body + "\n", encoding="utf-8")
+        except OSError as exc:
+            raise ObsidianWriteError(f"Failed to write transcript: {transcript_path}") from exc
+        return transcript_path
+
     def render(self, run: RunRecord, *, vault_path: Path, template: str = "full") -> tuple[Path, Path]:
         """Render both the summary note (B) and the transcript (A), then update index."""
         base_name = self._base_name(run)
@@ -34,6 +67,12 @@ class ObsidianRenderer:
         chapters_payload = self._load_json(run.outputs.chapters)
         summarization = self._load_json(run.outputs.summarization)
         meeting_assistance = self._load_json(run.outputs.meeting_assistance)
+
+        if self._is_doubao_transcription(transcription):
+            transcription = self._normalize_doubao_transcription(transcription)
+            chapters_payload = self._normalize_doubao_chapters(chapters_payload)
+            summarization = self._normalize_doubao_summarization(summarization)
+            meeting_assistance = self._normalize_doubao_meeting_assistance(meeting_assistance)
 
         # 2. Render transcript (A)
         transcript_path = self._render_transcript(
@@ -78,35 +117,17 @@ class ObsidianRenderer:
         name: str,
         transcription: dict[str, Any],
     ) -> Path:
-        paragraphs = transcription.get("Transcription", {}).get("Paragraphs", [])
-        utterances: list[dict[str, Any]] = []
-        for idx, para in enumerate(paragraphs):
-            words = para.get("Words", [])
-            if not words:
-                continue
-            start_ms = words[0].get("Start", 0)
-            text = "".join(w.get("Text", "") for w in words)
-            speaker_id = para.get("SpeakerId", "Unknown")
-            utterances.append(
-                {
-                    "time_label": self._format_millis(start_ms),
-                    "speaker": f"说话人 {speaker_id}",
-                    "text": text,
-                    "anchor": f"ef-{idx:03d}",
-                }
-            )
-
-        duration_ms = transcription.get("Transcription", {}).get("AudioInfo", {}).get("Duration", 0)
-
-        context = {
-            "title": run.title,
-            "source_label": "Feishu Minutes" if run.source == "feishu" else "Local File",
-            "created_at": run.created_at.astimezone().strftime("%Y-%m-%d %H:%M"),
-            "generated_at": datetime.now().astimezone().strftime("%Y-%m-%d %H:%M"),
-            "duration": self._format_millis(duration_ms),
-            "note_name": self._base_name(run),
-            "utterances": utterances,
-        }
+        if self._is_doubao_transcription(transcription):
+            transcription = self._normalize_doubao_transcription(transcription)
+        context = self._build_transcript_context(
+            title=run.title,
+            source_label="Feishu Minutes" if run.source == "feishu" else "Local File",
+            created_at=run.created_at.astimezone().strftime("%Y-%m-%d %H:%M"),
+            generated_at=datetime.now().astimezone().strftime("%Y-%m-%d %H:%M"),
+            duration=self._format_millis(transcription.get("Transcription", {}).get("AudioInfo", {}).get("Duration", 0)),
+            note_name=self._base_name(run),
+            utterances=self._transcript_utterances(transcription),
+        )
 
         body = self.environment.get_template("transcript.md.j2").render(**context).strip()
         transcript_dir = vault_path / "meetings" / "Transcripts"
@@ -213,7 +234,60 @@ class ObsidianRenderer:
     def _load_json(self, path: Path | None) -> dict[str, Any]:
         if path is None or not path.exists():
             return {}
-        return json.loads(path.read_text(encoding="utf-8"))
+        data = json.loads(path.read_text(encoding="utf-8"))
+        if isinstance(data, list):
+            return {"_raw_list": data}
+        return data
+
+    def _is_doubao_transcription(self, transcription: dict[str, Any]) -> bool:
+        return "_raw_list" in transcription and isinstance(transcription["_raw_list"], list)
+
+    def _normalize_doubao_transcription(self, transcription: dict[str, Any]) -> dict[str, Any]:
+        raw = transcription.get("_raw_list", [])
+        if not raw:
+            return {}
+        last = raw[-1]
+        duration = last.get("end_time", 0)
+        paragraphs = []
+        for sentence in raw:
+            words = sentence.get("words", [])
+            paragraph_words = [
+                {"Text": w.get("content", ""), "Start": w.get("start_time", 0)}
+                for w in words
+            ]
+            speaker = sentence.get("speaker", {})
+            paragraphs.append({
+                "Words": paragraph_words,
+                "SpeakerId": speaker.get("id", "Unknown"),
+            })
+        return {
+            "Transcription": {
+                "AudioInfo": {"Duration": duration},
+                "Paragraphs": paragraphs,
+            }
+        }
+
+    def _normalize_doubao_chapters(self, chapters_payload: dict[str, Any]) -> dict[str, Any]:
+        if "chapter_summary" in chapters_payload:
+            return {"AutoChapters": chapters_payload.get("chapter_summary", [])}
+        return chapters_payload
+
+    def _normalize_doubao_summarization(self, summarization: dict[str, Any]) -> dict[str, Any]:
+        if "paragraph" in summarization:
+            return {
+                "ParagraphSummary": summarization.get("paragraph", ""),
+                "QaPairs": [],
+                "ConversationalSummary": [],
+            }
+        return summarization
+
+    def _normalize_doubao_meeting_assistance(self, meeting_assistance: dict[str, Any]) -> dict[str, Any]:
+        if "question_answer" in meeting_assistance or "todo_list" in meeting_assistance:
+            return {
+                "Actions": meeting_assistance.get("todo_list", []),
+                "KeyInformation": [],
+            }
+        return meeting_assistance
 
     def _chapters_context(
         self, payload: dict[str, Any], anchors: dict[int, str]
@@ -239,6 +313,55 @@ class ObsidianRenderer:
             speaker_id = item.get("SpeakerId") or "speaker"
             result.append({"name": speaker_id, "summary": item.get("Summary", "")})
         return result
+
+    def _transcript_utterances(self, transcription: dict[str, Any]) -> list[dict[str, Any]]:
+        paragraphs = transcription.get("Transcription", {}).get("Paragraphs", [])
+        utterances: list[dict[str, Any]] = []
+        for idx, para in enumerate(paragraphs):
+            words = para.get("Words", [])
+            if not words:
+                continue
+            start_ms = words[0].get("Start", 0)
+            text = "".join(str(w.get("Text", "")) for w in words)
+            speaker_id = para.get("SpeakerId", "Unknown")
+            utterances.append(
+                {
+                    "time_label": self._format_millis(start_ms),
+                    "speaker": self._format_speaker_label(speaker_id),
+                    "text": text,
+                    "anchor": f"ef-{idx:03d}",
+                }
+            )
+        return utterances
+
+    def _build_transcript_context(
+        self,
+        *,
+        title: str,
+        source_label: str,
+        created_at: str,
+        generated_at: str,
+        duration: str,
+        note_name: str,
+        utterances: list[dict[str, Any]],
+    ) -> dict[str, Any]:
+        return {
+            "title": title,
+            "source_label": source_label,
+            "created_at": created_at,
+            "generated_at": generated_at,
+            "duration": duration,
+            "note_name": note_name,
+            "utterances": utterances,
+        }
+
+    def _format_speaker_label(self, speaker_id: Any) -> str:
+        text = str(speaker_id or "Unknown").strip()
+        if text in {"字幕", "caption", "captions", "subtitle", "subtitles"}:
+            return "字幕"
+        if text.startswith("说话人 "):
+            return text
+        return f"说话人 {text}"
 
     def _format_millis(self, value: Any) -> str:
         try:

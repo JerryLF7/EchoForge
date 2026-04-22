@@ -17,6 +17,11 @@ class Settings(BaseSettings):
         populate_by_name=True,
     )
 
+    understanding_provider: str = Field(
+        default="tingwu",
+        validation_alias=AliasChoices("ECHOFORGE_UNDERSTANDING_PROVIDER"),
+    )
+
     tingwu_access_key_id: str | None = Field(
         default=None,
         validation_alias=AliasChoices("TINGWU_ACCESS_KEY_ID"),
@@ -48,6 +53,43 @@ class Settings(BaseSettings):
     tingwu_model: str = Field(
         default="tingwu",
         validation_alias=AliasChoices("TINGWU_MODEL"),
+    )
+
+    doubao_app_key: str | None = Field(
+        default=None,
+        validation_alias=AliasChoices("DOUBAO_APP_KEY"),
+    )
+    doubao_access_key: str | None = Field(
+        default=None,
+        validation_alias=AliasChoices("DOUBAO_ACCESS_KEY"),
+    )
+    doubao_resource_id: str = Field(
+        default="volc.lark.minutes",
+        validation_alias=AliasChoices("DOUBAO_RESOURCE_ID"),
+    )
+    doubao_submit_url: str = Field(
+        default="https://openspeech.bytedance.com/api/v3/auc/lark/submit",
+        validation_alias=AliasChoices("DOUBAO_SUBMIT_URL"),
+    )
+    doubao_query_url: str = Field(
+        default="https://openspeech.bytedance.com/api/v3/auc/lark/query",
+        validation_alias=AliasChoices("DOUBAO_QUERY_URL"),
+    )
+    doubao_source_lang: str = Field(
+        default="zh_cn",
+        validation_alias=AliasChoices("DOUBAO_SOURCE_LANG"),
+    )
+    doubao_speaker_identification: bool = Field(
+        default=True,
+        validation_alias=AliasChoices("DOUBAO_SPEAKER_IDENTIFICATION"),
+    )
+    doubao_number_of_speakers: int = Field(
+        default=0,
+        validation_alias=AliasChoices("DOUBAO_NUMBER_OF_SPEAKERS"),
+    )
+    doubao_need_word_time_series: bool = Field(
+        default=True,
+        validation_alias=AliasChoices("DOUBAO_NEED_WORD_TIME_SERIES"),
     )
 
     r2_account_id: str | None = Field(

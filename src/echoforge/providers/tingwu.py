@@ -114,10 +114,11 @@ class TingwuProvider:
             "Input": input_block,
             "Type": "offline",
             "Parameters": {
+                "TextPolishEnabled": True,
                 "AutoChaptersEnabled": True,
                 "SummarizationEnabled": True,
                 "Summarization": {
-                    "Types": ["Paragraph", "Conversational", "QuestionsAnswering"],
+                    "Types": ["Paragraph", "Conversational", "QuestionsAnswering", "MindMap"],
                 },
                 "MeetingAssistanceEnabled": True,
                 "MeetingAssistance": {
