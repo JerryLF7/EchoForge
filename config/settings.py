@@ -92,6 +92,31 @@ class Settings(BaseSettings):
         validation_alias=AliasChoices("DOUBAO_NEED_WORD_TIME_SERIES"),
     )
 
+    doubao_speech_appid: str | None = Field(
+        default=None,
+        validation_alias=AliasChoices("DOUBAO_SPEECH_APPID"),
+    )
+    doubao_speech_token: str | None = Field(
+        default=None,
+        validation_alias=AliasChoices("DOUBAO_SPEECH_TOKEN"),
+    )
+    doubao_speech_cluster: str | None = Field(
+        default=None,
+        validation_alias=AliasChoices("DOUBAO_SPEECH_CLUSTER"),
+    )
+    doubao_speech_uid: str = Field(
+        default="echoforge",
+        validation_alias=AliasChoices("DOUBAO_SPEECH_UID"),
+    )
+    doubao_speech_submit_url: str = Field(
+        default="https://openspeech.bytedance.com/api/v1/auc/submit",
+        validation_alias=AliasChoices("DOUBAO_SPEECH_SUBMIT_URL"),
+    )
+    doubao_speech_query_url: str = Field(
+        default="https://openspeech.bytedance.com/api/v1/auc/query",
+        validation_alias=AliasChoices("DOUBAO_SPEECH_QUERY_URL"),
+    )
+
     r2_account_id: str | None = Field(
         default=None,
         validation_alias=AliasChoices("R2_ACCOUNT_ID"),
