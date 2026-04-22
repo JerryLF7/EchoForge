@@ -138,6 +138,7 @@ class DoubaoSpeechProvider:
             "audio": {
                 "url": file_url,
                 "format": self._infer_format(file_url),
+                "codec": self._infer_codec(file_url),
             },
             "request": {
                 "model_name": "bigmodel",
@@ -219,3 +220,12 @@ class DoubaoSpeechProvider:
         if suffix in {".mp4", ".m4a"}:
             return "mp4"
         return "ogg"
+
+    def _infer_codec(self, file_url: str) -> str:
+        """Infer audio codec; defaults to opus for ogg (common for Lark/Minutes
+        downloads) and raw for everything else.
+        """
+        suffix = Path(file_url.split("?", 1)[0]).suffix.lower()
+        if suffix in {".ogg", ".oga"}:
+            return "opus"
+        return "raw"
