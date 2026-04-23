@@ -2,22 +2,29 @@
 
 EchoForge is a Python CLI that turns audio into structured local knowledge artifacts.
 
-The current pipeline targets three steps:
+The pipeline covers three steps:
 
-1. fetch or stage audio from Feishu Minutes or a local file
-2. submit the audio to a supported ASR provider for transcription and meeting understanding
-3. render the results into Obsidian Markdown notes
+1. Fetch or stage audio from Feishu Minutes or a local file
+2. Submit the audio to a supported ASR provider for transcription and meeting understanding
+3. Render the results into Obsidian Markdown notes
 
 ## Status
 
 The Python implementation under `src/echoforge/` is the current pipeline. It has been verified end-to-end with Tingwu + R2 transit, and it also supports Doubao ASR.
 
-EchoForge now also works with Feishu Minutes exports that already contain transcript and summary data. When `feishu_minutes_sync` exports a minute from the web page, EchoForge can render the standardized artifacts directly without sending the audio to a third-party ASR provider again.
+**Recent additions:**
+
+- **Dual ASR provider support**: Switch between Tingwu and Doubao via `ECHOFORGE_UNDERSTANDING_PROVIDER`
+- **Gemini post-processing**: Optional summarization, chapter extraction, Q&A, and action items generated from the transcript markdown
+- **Long-audio segmentation**: Files longer than 119 minutes are automatically split at silence points and processed in parallel
+- **State persistence**: All runs are tracked in `outputs/runs.json` with `list-runs` and `inspect-run` commands
+
+EchoForge also works with Feishu Minutes exports that already contain transcript and summary data. When `feishu_minutes_sync` exports a minute from the web page, EchoForge can render the standardized artifacts directly without sending the audio to a third-party ASR provider again.
 
 One important integration constraint comes from the current provider APIs:
 
-- offline transcription tasks require a public `FileUrl`
-- local file paths are staged into `outputs/`, and the provider still needs an externally reachable HTTP or HTTPS URL
+- Offline transcription tasks require a public `FileUrl`
+- Local file paths are staged into `outputs/`, and the provider still needs an externally reachable HTTP or HTTPS URL
 
 That means `process-file` is implemented, but you must provide `--media-url` unless your source already exposes a downloadable URL.
 
@@ -65,19 +72,26 @@ pip install -e ".[dev]"
 Copy `.env.example` to `.env` and fill in at least:
 
 ```bash
+# ASR provider selection: tingwu | doubao
+ECHOFORGE_UNDERSTANDING_PROVIDER=tingwu
+
+# Tingwu
 TINGWU_ACCESS_KEY_ID=...
 TINGWU_ACCESS_KEY_SECRET=***
 TINGWU_APP_KEY=...
-OBSIDIAN_VAULT_PATH=/path/to/vault
-```
 
-Doubao configuration:
-
-```bash
-ECHOFORGE_UNDERSTANDING_PROVIDER=doubao
+# Doubao (when provider = doubao)
 DOUBAO_APP_KEY=...
 DOUBAO_ACCESS_KEY=...
+
+# Obsidian
 OBSIDIAN_VAULT_PATH=/path/to/vault
+
+# Optional: Gemini post-processing
+GEMINI_API_KEY=...
+GEMINI_BASE_URL=https://generativelanguage.googleapis.com
+GEMINI_MODEL=gemini-2.0-flash
+GEMINI_ENABLE_SUMMARY=true
 ```
 
 Optional Feishu settings:
@@ -96,12 +110,19 @@ Feishu Minutes web export workflow:
 ## Commands
 
 ```bash
+# Process audio
 python -m echoforge process-feishu <minute_token>
-python -m echoforge process-feishu <minute_token> --output-vault ~/Obsidian/vault
 python -m echoforge process-file ./recording.ogg --media-url https://example.com/recording.ogg
+
+# Re-render an existing run
 python -m echoforge render <run_id>
+
+# Render a standalone transcript JSON
 python -m echoforge render-transcript ./transcription.json --title "导入转写" --output-vault ~/Obsidian/vault
+
+# State management
 python -m echoforge list-runs
+python -m echoforge list-runs --status failed
 python -m echoforge inspect-run <run_id>
 ```
 
@@ -124,6 +145,7 @@ Use `python -m echoforge --help` for the full CLI.
 EchoForge/
 ├── config/
 ├── outputs/
+│   └── runs.json
 ├── src/echoforge/
 └── tests/
 ```

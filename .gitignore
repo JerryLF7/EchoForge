@@ -13,3 +13,6 @@ outputs/*
 .DS_Store
 *.log
 graphify-out/
+scripts/
+test_mindmap.py
+test_vault/
