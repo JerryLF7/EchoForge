@@ -316,23 +316,44 @@ class ObsidianRenderer:
 
     def _transcript_utterances(self, transcription: dict[str, Any]) -> list[dict[str, Any]]:
         paragraphs = transcription.get("Transcription", {}).get("Paragraphs", [])
-        utterances: list[dict[str, Any]] = []
-        for idx, para in enumerate(paragraphs):
+        if not paragraphs:
+            return []
+        # Group consecutive same-speaker paragraphs into fluent paragraphs
+        merged: list[dict[str, Any]] = []
+        MAX_CHARS = 280
+        group: list[dict[str, Any]] = []
+        for para in paragraphs:
             words = para.get("Words", [])
             if not words:
                 continue
-            start_ms = words[0].get("Start", 0)
             text = "".join(str(w.get("Text", "")) for w in words)
             speaker_id = para.get("SpeakerId", "Unknown")
-            utterances.append(
-                {
-                    "time_label": self._format_millis(start_ms),
-                    "speaker": self._format_speaker_label(speaker_id),
-                    "text": text,
-                    "anchor": f"ef-{idx:03d}",
-                }
-            )
-        return utterances
+            if not group:
+                group = [{"speaker_id": speaker_id, "texts": [text], "start_ms": words[0].get("Start", 0), "anchor_idx": len(merged)}]
+            elif speaker_id == group[0]["speaker_id"]:
+                # Check total length
+                total = sum(len(t) for t in group[0]["texts"]) + len(text)
+                if total > MAX_CHARS:
+                    # Flush current group, start new one
+                    merged.append(self._flush_group(group[0]))
+                    group = [{"speaker_id": speaker_id, "texts": [text], "start_ms": words[0].get("Start", 0), "anchor_idx": len(merged)}]
+                else:
+                    group[0]["texts"].append(text)
+            else:
+                merged.append(self._flush_group(group[0]))
+                group = [{"speaker_id": speaker_id, "texts": [text], "start_ms": words[0].get("Start", 0), "anchor_idx": len(merged)}]
+        if group:
+            merged.append(self._flush_group(group[0]))
+        return merged
+
+    def _flush_group(self, group: dict[str, Any]) -> dict[str, Any]:
+        joined = "".join(group["texts"])
+        return {
+            "time_label": self._format_millis(group["start_ms"]),
+            "speaker": self._format_speaker_label(group["speaker_id"]),
+            "text": joined,
+            "anchor": f"ef-{group['anchor_idx']:03d}",
+        }
 
     def _build_transcript_context(
         self,
