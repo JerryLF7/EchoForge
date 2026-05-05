@@ -252,7 +252,11 @@ class ObsidianRenderer:
         for sentence in raw:
             words = sentence.get("words", [])
             paragraph_words = [
-                {"Text": w.get("content", ""), "Start": w.get("start_time", 0)}
+                {
+                    "Text": w.get("content", ""),
+                    "Start": w.get("start_time", 0),
+                    "End": w.get("end_time", 0),
+                }
                 for w in words
             ]
             speaker = sentence.get("speaker", {})
@@ -269,7 +273,17 @@ class ObsidianRenderer:
 
     def _normalize_doubao_chapters(self, chapters_payload: dict[str, Any]) -> dict[str, Any]:
         if "chapter_summary" in chapters_payload:
-            return {"AutoChapters": chapters_payload.get("chapter_summary", [])}
+            raw = chapters_payload.get("chapter_summary", [])
+            normalized = []
+            for ch in raw:
+                entry = {
+                    "Headline": ch.get("title", "Untitled"),
+                    "Summary": ch.get("summary", ""),
+                    "StartTime": ch.get("start_time", 0),
+                    "EndTime": ch.get("end_time", 0),
+                }
+                normalized.append(entry)
+            return {"AutoChapters": normalized}
         return chapters_payload
 
     def _normalize_doubao_summarization(self, summarization: dict[str, Any]) -> dict[str, Any]:
@@ -318,36 +332,128 @@ class ObsidianRenderer:
         paragraphs = transcription.get("Transcription", {}).get("Paragraphs", [])
         if not paragraphs:
             return []
-        # Group consecutive same-speaker paragraphs into fluent paragraphs
         merged: list[dict[str, Any]] = []
-        MAX_CHARS = 280
-        group: list[dict[str, Any]] = []
+        MAX_UNITS = 250
+        GAP_MS = 2000  # 2 seconds
+
+        group: dict[str, Any] | None = None
+        prev_end_ms = 0
+
         for para in paragraphs:
             words = para.get("Words", [])
             if not words:
                 continue
             text = "".join(str(w.get("Text", "")) for w in words)
             speaker_id = para.get("SpeakerId", "Unknown")
-            if not group:
-                group = [{"speaker_id": speaker_id, "texts": [text], "start_ms": words[0].get("Start", 0), "anchor_idx": len(merged)}]
-            elif speaker_id == group[0]["speaker_id"]:
-                # Check total length
-                total = sum(len(t) for t in group[0]["texts"]) + len(text)
-                if total > MAX_CHARS:
-                    # Flush current group, start new one
-                    merged.append(self._flush_group(group[0]))
-                    group = [{"speaker_id": speaker_id, "texts": [text], "start_ms": words[0].get("Start", 0), "anchor_idx": len(merged)}]
+            curr_start_ms = words[0].get("Start", 0)
+            curr_end_ms = words[-1].get("End", 0)
+            gap = curr_start_ms - prev_end_ms
+
+            if group is None:
+                group = {
+                    "speaker_id": speaker_id,
+                    "texts": [text],
+                    "start_ms": curr_start_ms,
+                    "anchor_idx": len(merged),
+                }
+            elif speaker_id == group["speaker_id"] and gap <= GAP_MS:
+                # Same speaker, within gap threshold — try to merge
+                merged_text = "".join(group["texts"])
+                new_units = self._count_units(merged_text) + self._count_units(text)
+
+                if new_units > MAX_UNITS:
+                    # Try to split at sentence boundary in the full combined text
+                    combined = merged_text + text
+                    split = self._find_sentence_boundary(combined, MAX_UNITS)
+                    if split is not None:
+                        before, after = combined[:split], combined[split:]
+                        merged.append(self._flush_group(group, text_override=before))
+                        group = {
+                            "speaker_id": speaker_id,
+                            "texts": [after],
+                            "start_ms": curr_start_ms,
+                            "anchor_idx": len(merged),
+                        }
+                    else:
+                        # No natural break — merge anyway to avoid mid-sentence cut
+                        group["texts"].append(text)
                 else:
-                    group[0]["texts"].append(text)
+                    group["texts"].append(text)
             else:
-                merged.append(self._flush_group(group[0]))
-                group = [{"speaker_id": speaker_id, "texts": [text], "start_ms": words[0].get("Start", 0), "anchor_idx": len(merged)}]
+                # Different speaker or gap > 2s — flush, start new
+                merged.append(self._flush_group(group))
+                group = {
+                    "speaker_id": speaker_id,
+                    "texts": [text],
+                    "start_ms": curr_start_ms,
+                    "anchor_idx": len(merged),
+                }
+
+            prev_end_ms = curr_end_ms
+
         if group:
-            merged.append(self._flush_group(group[0]))
+            merged.append(self._flush_group(group))
         return merged
 
-    def _flush_group(self, group: dict[str, Any]) -> dict[str, Any]:
-        joined = "".join(group["texts"])
+    @staticmethod
+    def _count_units(text: str) -> int:
+        """Count '字' units: CJK char=1, English word=1, digit=1. Punctuation skipped."""
+        count = 0
+        i = 0
+        while i < len(text):
+            ch = text[i]
+            if '\u4e00' <= ch <= '\u9fff' or '\u3400' <= ch <= '\u4dbf' or '\uf900' <= ch <= '\ufaff':
+                count += 1
+                i += 1
+            elif ch.isascii() and ch.isalpha():
+                count += 1  # one English word
+                while i < len(text) and text[i].isascii() and text[i].isalpha():
+                    i += 1
+            elif ch.isascii() and ch.isdigit():
+                count += 1
+                i += 1
+            else:
+                i += 1  # punctuation, whitespace — skip
+        return count
+
+    @staticmethod
+    def _find_sentence_boundary(text: str, max_units: int) -> int | None:
+        """Find last sentence-ending punctuation within max_units.
+        Returns char index to split AFTER (inclusive of punct), or None.
+        """
+        SENTENCE_ENDS = frozenset("。！？；\n.!?;")
+        unit_count = 0
+        i = 0
+        last_split = None
+
+        while i < len(text):
+            ch = text[i]
+
+            if ch in SENTENCE_ENDS:
+                last_split = i + 1  # split after the punctuation
+                i += 1
+                continue
+
+            if '\u4e00' <= ch <= '\u9fff' or '\u3400' <= ch <= '\u4dbf' or '\uf900' <= ch <= '\ufaff':
+                unit_count += 1
+                i += 1
+            elif ch.isascii() and ch.isalpha():
+                unit_count += 1
+                while i < len(text) and text[i].isascii() and text[i].isalpha():
+                    i += 1
+            elif ch.isascii() and ch.isdigit():
+                unit_count += 1
+                i += 1
+            else:
+                i += 1
+
+            if unit_count > max_units:
+                return last_split
+
+        return None
+
+    def _flush_group(self, group: dict[str, Any], text_override: str | None = None) -> dict[str, Any]:
+        joined = text_override if text_override is not None else "".join(group["texts"])
         return {
             "time_label": self._format_millis(group["start_ms"]),
             "speaker": self._format_speaker_label(group["speaker_id"]),
