@@ -10,11 +10,19 @@ The pipeline covers three steps:
 
 ## Status
 
-The Python implementation under `src/echoforge/` is the current pipeline. It has been verified end-to-end with Tingwu + R2 transit, and it also supports Doubao ASR.
+The Python implementation under `src/echoforge/` has been verified end-to-end with three provider modes:
+
+| Provider | ASR | Chapters | Summary | QA/Actions | Config value |
+|----------|-----|----------|---------|------------|--------------|
+| **Doubao Lark Minutes** (推荐) | ✅ | ✅ | ✅ | ✅ | `doubao` |
+| **Doubao Speech** (纯 ASR) | ✅ | — | — | — | `doubao-speech` |
+| **Tingwu** | ✅ | ✅ | ✅ | ✅ | `tingwu` |
+
+Switch between them via `ECHOFORGE_UNDERSTANDING_PROVIDER` in `.env`.
 
 **Recent additions:**
 
-- **Dual ASR provider support**: Switch between Tingwu and Doubao via `ECHOFORGE_UNDERSTANDING_PROVIDER`
+- **Three ASR provider options**: Tingwu, Doubao Lark Minutes (妙记, with full understanding), Doubao Speech bigmodel (ASR-only)
 - **Gemini post-processing**: Optional summarization, chapter extraction, Q&A, and action items generated from the transcript markdown
 - **Long-audio segmentation**: Files longer than 119 minutes are automatically split at silence points and processed in parallel
 - **State persistence**: All runs are tracked in `outputs/runs.json` with `list-runs` and `inspect-run` commands
@@ -26,7 +34,7 @@ One important integration constraint comes from the current provider APIs:
 - Offline transcription tasks require a public `FileUrl`
 - Local file paths are staged into `outputs/`, and the provider still needs an externally reachable HTTP or HTTPS URL
 
-That means `process-file` is implemented, but you must provide `--media-url` unless your source already exposes a downloadable URL.
+That means `process-file` is implemented, but you must provide `--media-url` or configure R2 transit unless your source already exposes a downloadable URL.
 
 ## Obsidian Output Structure
 
@@ -49,8 +57,9 @@ EchoForge renders from a normalized artifact layer. Current standard files are:
 
 Different upstream sources can map into the same shape:
 
-- Tingwu returns all four categories directly
-- Doubao returns transcription, chapters, summarization, and information extraction URLs
+- **Doubao Lark Minutes** (recommended) returns transcription, chapters, summarization, and meeting assistance URLs in one API call
+- **Doubao Speech** returns only transcription (ASR-only bigmodel edition)
+- **Tingwu** returns all four categories directly
 - Feishu Minutes web export now produces:
   - `transcript.vtt`
   - `transcription.json`
@@ -72,23 +81,33 @@ pip install -e ".[dev]"
 Copy `.env.example` to `.env` and fill in at least:
 
 ```bash
-# ASR provider selection: tingwu | doubao
-ECHOFORGE_UNDERSTANDING_PROVIDER=tingwu
+# ASR provider selection: doubao | doubao-speech | tingwu
+ECHOFORGE_UNDERSTANDING_PROVIDER=doubao
 
-# Tingwu
+# Doubao Lark Minutes (recommended, provider = doubao)
+DOUBAO_APP_KEY=...
+DOUBAO_ACCESS_KEY=...
+
+# Doubao Speech bigmodel (provider = doubao-speech, ASR only)
+DOUBAO_SPEECH_APPID=...
+DOUBAO_SPEECH_TOKEN=...
+
+# Tingwu (provider = tingwu)
 TINGWU_ACCESS_KEY_ID=...
 TINGWU_ACCESS_KEY_SECRET=***
 TINGWU_APP_KEY=...
 
-# Doubao (when provider = doubao)
-DOUBAO_APP_KEY=...
-DOUBAO_ACCESS_KEY=...
+# R2 transit (required for Tingwu, optional for Doubao)
+R2_ACCOUNT_ID=...
+R2_ACCESS_KEY_ID=...
+R2_SECRET_ACCESS_KEY=...
+R2_BUCKET_NAME=echoforge-transit
 
 # Obsidian
 OBSIDIAN_VAULT_PATH=/path/to/vault
 
 # Optional: Gemini post-processing
-GEMINI_API_KEY=...
+GEMINI_API_KEY=***
 GEMINI_BASE_URL=https://generativelanguage.googleapis.com
 GEMINI_MODEL=gemini-2.0-flash
 GEMINI_ENABLE_SUMMARY=true
@@ -99,7 +118,10 @@ Optional Feishu settings:
 ```bash
 FEISHU_MINUTES_SYNC_BIN=feishu-minutes-sync
 FEISHU_MINUTES_SYNC_EXPORTS_DIR=./exports
+FEISHU_MINUTES_SYNC_CONFIG_PATH=/path/to/feishu_minutes_sync/config.json
 ```
+
+When `FEISHU_MINUTES_SYNC_CONFIG_PATH` is set, EchoForge passes `--config` to the feishu-minutes-sync CLI and sets the working directory to the config file's parent, so relative paths in the config resolve correctly.
 
 Feishu Minutes web export workflow:
 
