@@ -297,7 +297,7 @@ class ObsidianRenderer:
         for idx, chapter in enumerate(chapters):
             result.append(
                 {
-                    "title": chapter.get("Headline") or chapter.get("ChapterTitle", "Untitled"),
+                    "title": chapter.get("Headline") or chapter.get("ChapterTitle") or chapter.get("title", "Untitled"),
                     "summary": chapter.get("Summary", ""),
                     "start_label": self._format_millis(chapter.get("StartTime") or chapter.get("Start")),
                     "end_label": self._format_millis(chapter.get("EndTime") or chapter.get("End")),

@@ -28,19 +28,34 @@ class FeishuSource:
             raise ConfigMissingError(
                 f"Feishu CLI not found: {self.settings.feishu_minutes_sync_bin}"
             )
-        self._run_cli("fetch-minute", minute_token)
+        self._run_cli("fetch-minute", minute_token, extra_args=["--export", "--download-media"])
         minute_json_path = self._minute_json_path(minute_token)
         if not minute_json_path.exists():
             raise FeishuNotFoundError(f"Expected minute manifest not found: {minute_json_path}")
         raw = json.loads(minute_json_path.read_text(encoding="utf-8"))
         export_dir = minute_json_path.parent
+        media_path = self._find_media_file(export_dir)
+        # If no media file found in export dir, try minute.json's media_path field
+        if media_path is None:
+            raw_media = raw.get("media_path")
+            if raw_media:
+                candidate = Path(raw_media)
+                if candidate.is_absolute():
+                    media_path = candidate
+                else:
+                    # Relative to the feishu project dir (config parent) or export dir
+                    config_path = self.settings.feishu_minutes_sync_config_path
+                    if config_path is not None:
+                        candidate = config_path.expanduser().resolve().parent / raw_media
+                        if candidate.exists():
+                            media_path = candidate
         return FeishuMinuteResult(
             minute_token=minute_token,
             title=self._extract_title(raw, minute_token),
             minute_json_path=minute_json_path,
             export_dir=export_dir,
-            media_path=self._find_media_file(export_dir),
-            media_url=self._extract_media_url(raw),
+            media_path=media_path,
+            media_url=None,
             raw=raw,
         )
 
@@ -60,12 +75,22 @@ class FeishuSource:
             copy2(media_path, destination)
         return destination
 
-    def _run_cli(self, command: str, minute_token: str) -> None:
-        result = self.runner(
-            [self.settings.feishu_minutes_sync_bin, command, minute_token],
+    def _run_cli(self, command: str, minute_token: str, extra_args: list[str] | None = None) -> None:
+        cmd = [self.settings.feishu_minutes_sync_bin]
+        cwd = None
+        config_path = self.settings.feishu_minutes_sync_config_path
+        if config_path is not None:
+            resolved_config = config_path.expanduser().resolve()
+            cmd.extend(["--config", str(resolved_config)])
+            cwd = str(resolved_config.parent)
+        cmd.extend([command, "--token", minute_token])
+        if extra_args:
+            cmd.extend(extra_args)
+        result = self.runner(cmd,
             capture_output=True,
             text=True,
             check=False,
+            cwd=cwd,
         )
         if result.returncode == 0:
             return

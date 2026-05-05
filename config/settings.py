@@ -167,6 +167,10 @@ class Settings(BaseSettings):
         default=Path("exports"),
         validation_alias=AliasChoices("FEISHU_MINUTES_SYNC_EXPORTS_DIR"),
     )
+    feishu_minutes_sync_config_path: Path | None = Field(
+        default=None,
+        validation_alias=AliasChoices("FEISHU_MINUTES_SYNC_CONFIG_PATH"),
+    )
 
     default_template: str = Field(
         default="full",
